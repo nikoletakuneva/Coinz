@@ -1,9 +1,13 @@
 package com.example.nikoleta.coinz;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Icon;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -15,6 +19,7 @@ import com.mapbox.android.core.location.LocationEngineProvider;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.annotations.IconFactory;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.maps.MapView;
@@ -46,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements
     private LocationLayerPlugin locationLayerPlugin;
     private Location originLocation;
 
+
     DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
     Date date = new Date();
     String downloadDate = dateFormat.format(date); // Format: YYYY/MM/DD
@@ -53,6 +59,10 @@ public class MainActivity extends AppCompatActivity implements
 
     private final String preferencesFile = "MyPrefsFile"; // for storing preferences
 
+    static com.mapbox.mapboxsdk.annotations.Icon icon_quid;
+    static com.mapbox.mapboxsdk.annotations.Icon icon_penny;
+    static com.mapbox.mapboxsdk.annotations.Icon icon_dollar;
+    static com.mapbox.mapboxsdk.annotations.Icon icon_shilling;
 
 
     @Override
@@ -79,8 +89,28 @@ public class MainActivity extends AppCompatActivity implements
             // Make location information available
             enableLocation();
             DownloadFileTask task = new DownloadFileTask();
-
             task.execute(url);
+            IconFactory iconFactory = IconFactory.getInstance(MainActivity.this);
+            BitmapDrawable iconDrawable = (BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.quid, null);
+            Bitmap bitmap = iconDrawable.getBitmap();
+            Bitmap smallMarker = Bitmap.createScaledBitmap(bitmap, 100, 100, false);
+            icon_quid = iconFactory.fromBitmap(smallMarker);
+
+            iconDrawable = (BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.dollar, null);
+            bitmap = iconDrawable.getBitmap();
+            smallMarker = Bitmap.createScaledBitmap(bitmap, 100, 100, false);
+            icon_dollar = iconFactory.fromBitmap(smallMarker);
+
+            iconDrawable = (BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.penny, null);
+            bitmap = iconDrawable.getBitmap();
+            smallMarker = Bitmap.createScaledBitmap(bitmap, 100, 100, false);
+            icon_penny = iconFactory.fromBitmap(smallMarker);
+
+            iconDrawable = (BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.shilling, null);
+            bitmap = iconDrawable.getBitmap();
+            smallMarker = Bitmap.createScaledBitmap(bitmap, 100, 100, false);
+            icon_shilling = iconFactory.fromBitmap(smallMarker);
+
             AsyncTask.Status status = task.getStatus();
         }
     }
