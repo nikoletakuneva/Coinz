@@ -1,6 +1,9 @@
 package com.example.nikoleta.coinz;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -20,18 +23,38 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin;
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.CameraMode;
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode;
+import android.os.AsyncTask;
 
+import java.io.BufferedInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLConnection;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 public class MainActivity extends AppCompatActivity implements
         OnMapReadyCallback, LocationEngineListener,
         PermissionsListener {
     private String tag = "MainActivity";
     private MapView mapView;
-    private MapboxMap map;
+    static MapboxMap map;
     private PermissionsManager permissionsManager;
     private LocationEngine locationEngine;
     private LocationLayerPlugin locationLayerPlugin;
     private Location originLocation;
+
+    DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+    Date date = new Date();
+    String downloadDate = dateFormat.format(date); // Format: YYYY/MM/DD
+    String url = "http://homepages.inf.ed.ac.uk/stg/coinz/" + downloadDate + "/coinzmap.geojson";
+
+    private final String preferencesFile = "MyPrefsFile"; // for storing preferences
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements
         mapView = findViewById(R.id.mapboxMapView);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
+
     }
     @Override
     public void onMapReady(MapboxMap mapboxMap) {
@@ -54,6 +78,10 @@ public class MainActivity extends AppCompatActivity implements
             map.getUiSettings().setZoomControlsEnabled(true);
             // Make location information available
             enableLocation();
+            DownloadFileTask task = new DownloadFileTask();
+
+            task.execute(url);
+            AsyncTask.Status status = task.getStatus();
         }
     }
     private void enableLocation() {
@@ -143,6 +171,14 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onResume() {
         super.onResume();
+
+        // Restore preferences
+        SharedPreferences settings = getSharedPreferences(preferencesFile,
+                Context.MODE_PRIVATE);
+        // use ”” as the default value (this might be the first time the app is run)
+        downloadDate = settings.getString("lastDownloadDate", "");
+        Log.d(tag, "[onStart] Recalled lastDownloadDate is ’" + downloadDate + "’");
+
         mapView.onResume();
     }
     @Override
@@ -153,6 +189,17 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onStop() {
         super.onStop();
+
+        Log.d(tag, "[onStop] Storing lastDownloadDate of " + downloadDate);
+        // All objects are from android.context.Context
+        SharedPreferences settings = getSharedPreferences(preferencesFile,
+                Context.MODE_PRIVATE);
+        // We need an Editor object to make preference changes.
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString("lastDownloadDate", downloadDate);
+        // Apply the edits!
+        editor.apply();
+
         mapView.onStop();
     }
     @Override
@@ -170,4 +217,15 @@ public class MainActivity extends AppCompatActivity implements
         super.onSaveInstanceState(outState);
         mapView.onSaveInstanceState(outState);
     }
+
+
+
+
+
+
+
+
+
+
+
 }
