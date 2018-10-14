@@ -1,12 +1,11 @@
 package com.example.nikoleta.coinz;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Icon;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -28,14 +27,6 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin;
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.CameraMode;
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode;
-import android.os.AsyncTask;
-
-import java.io.BufferedInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URL;
-import java.net.URLConnection;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -46,9 +37,7 @@ public class MainActivity extends AppCompatActivity implements
     private String tag = "MainActivity";
     private MapView mapView;
     static MapboxMap map;
-    private PermissionsManager permissionsManager;
     private LocationEngine locationEngine;
-    private LocationLayerPlugin locationLayerPlugin;
     private Location originLocation;
 
 
@@ -71,12 +60,15 @@ public class MainActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        Mapbox.getInstance(this, "pk.eyJ1Ijoibmlrb2xldGFrdW5ldmEiLCJhIjoiY2puNHAzNTcwMDFxbjNxbzRpbzZyN2s3ZSJ9.AE8kZVzoWo1uOZs4JXogDA");
+        Mapbox.getInstance(this,
+                "pk.eyJ1Ijoibmlrb2xldGFrdW5ldmEiLCJhIjoiY2puNHAzNTcwMDFxbjNxbzRpbzZyN2s3ZSJ9.AE8kZVzoWo1uOZs4JXogDA");
         mapView = findViewById(R.id.mapboxMapView);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
 
     }
+
+    @SuppressLint("LogNotTimber")
     @Override
     public void onMapReady(MapboxMap mapboxMap) {
         if (mapboxMap == null) {
@@ -92,28 +84,33 @@ public class MainActivity extends AppCompatActivity implements
             task.execute(url);
             IconFactory iconFactory = IconFactory.getInstance(MainActivity.this);
             BitmapDrawable iconDrawable = (BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.quid, null);
+            assert iconDrawable != null;
             Bitmap bitmap = iconDrawable.getBitmap();
             Bitmap smallMarker = Bitmap.createScaledBitmap(bitmap, 100, 100, false);
             icon_quid = iconFactory.fromBitmap(smallMarker);
 
             iconDrawable = (BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.dollar, null);
+            assert iconDrawable != null;
             bitmap = iconDrawable.getBitmap();
             smallMarker = Bitmap.createScaledBitmap(bitmap, 100, 100, false);
             icon_dollar = iconFactory.fromBitmap(smallMarker);
 
             iconDrawable = (BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.penny, null);
+            assert iconDrawable != null;
             bitmap = iconDrawable.getBitmap();
             smallMarker = Bitmap.createScaledBitmap(bitmap, 100, 100, false);
             icon_penny = iconFactory.fromBitmap(smallMarker);
 
             iconDrawable = (BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.shilling, null);
+            assert iconDrawable != null;
             bitmap = iconDrawable.getBitmap();
             smallMarker = Bitmap.createScaledBitmap(bitmap, 100, 100, false);
             icon_shilling = iconFactory.fromBitmap(smallMarker);
 
-            AsyncTask.Status status = task.getStatus();
+            task.getStatus();
         }
     }
+    @SuppressLint("LogNotTimber")
     private void enableLocation() {
         if (PermissionsManager.areLocationPermissionsGranted(this)) {
             Log.d(tag, "Permissions are granted");
@@ -121,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements
             initializeLocationLayer();
         } else {
             Log.d(tag, "Permissions are not granted");
-            permissionsManager = new PermissionsManager(this);
+            PermissionsManager permissionsManager = new PermissionsManager(this);
             permissionsManager.requestLocationPermissions(this);
         }
     }
@@ -141,6 +138,8 @@ public class MainActivity extends AppCompatActivity implements
             locationEngine.addLocationEngineListener(this);
         }
     }
+
+    @SuppressLint("LogNotTimber")
     @SuppressWarnings("MissingPermission")
     private void initializeLocationLayer() {
         if (mapView == null) {
@@ -149,7 +148,7 @@ public class MainActivity extends AppCompatActivity implements
             if (map == null) {
                 Log.d(tag, "map is null");
             } else {
-                locationLayerPlugin = new LocationLayerPlugin(mapView,
+                LocationLayerPlugin locationLayerPlugin = new LocationLayerPlugin(mapView,
                         map, locationEngine);
                 locationLayerPlugin.setLocationLayerEnabled(true);
                 locationLayerPlugin.setCameraMode(CameraMode.TRACKING);
@@ -157,11 +156,14 @@ public class MainActivity extends AppCompatActivity implements
             }
         }
     }
+
     private void setCameraPosition(Location location) {
         LatLng latLng = new LatLng(location.getLatitude(),
                 location.getLongitude());
         map.animateCamera(CameraUpdateFactory.newLatLng(latLng));
     }
+
+    @SuppressLint("LogNotTimber")
     @Override
     public void onLocationChanged(Location location) {
         if (location == null) {
@@ -172,19 +174,26 @@ public class MainActivity extends AppCompatActivity implements
             setCameraPosition(location);
         }
     }
+
+
     @Override
     @SuppressWarnings("MissingPermission")
+    @SuppressLint("LogNotTimber")
     public void onConnected() {
         Log.d(tag, "[onConnected] requesting location updates");
         locationEngine.requestLocationUpdates();
     }
+
     @Override
+    @SuppressLint("LogNotTimber")
     public void onExplanationNeeded(List<String>
                                             permissionsToExplain){
         Log.d(tag, "Permissions: " + permissionsToExplain.toString());
         // Present toast or dialog.
     }
+
     @Override
+    @SuppressLint("LogNotTimber")
     public void onPermissionResult(boolean granted) {
         Log.d(tag, "[onPermissionResult] granted == " + granted);
         if (granted) {
@@ -193,11 +202,14 @@ public class MainActivity extends AppCompatActivity implements
             // Open a dialogue with the user
         }
     }
+
     @Override
     protected void onStart() {
         super.onStart();
         mapView.onStart();
     }
+
+    @SuppressLint("LogNotTimber")
     @Override
     public void onResume() {
         super.onResume();
@@ -211,11 +223,14 @@ public class MainActivity extends AppCompatActivity implements
 
         mapView.onResume();
     }
+
     @Override
     public void onPause() {
         super.onPause();
         mapView.onPause();
     }
+
+    @SuppressLint("LogNotTimber")
     @Override
     public void onStop() {
         super.onStop();
@@ -232,30 +247,22 @@ public class MainActivity extends AppCompatActivity implements
 
         mapView.onStop();
     }
+
     @Override
     public void onLowMemory() {
         super.onLowMemory();
         mapView.onLowMemory();
     }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
         mapView.onDestroy();
     }
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         mapView.onSaveInstanceState(outState);
     }
-
-
-
-
-
-
-
-
-
-
-
 }
