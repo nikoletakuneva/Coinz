@@ -10,25 +10,25 @@ import com.mapbox.mapboxsdk.geometry.LatLng;
 import java.util.List;
 
 public class DownloadCompleteRunner {
-    static String result;
-    static String geoJsonString;
+    private static String result;
 
     public static void downloadComplete(String result) {
         DownloadCompleteRunner.result = result;
-        geoJsonString = result;
+        String geoJsonString = result;
         Feature feature;
         FeatureCollection fc = FeatureCollection.fromJson(geoJsonString);
         List<Feature> features_list = fc.features();
+        assert features_list != null;
         for (int i = 0; i < features_list.size(); i++) {
             feature = features_list.get(i);
             Geometry g = feature.geometry();
-            String type = g.type();
-
+            assert g != null;
             if (g.type().equals("Point")) {
                 Point point = (Point) g;
                 List<Double> coordinates = point.coordinates();
                 LatLng latlng = new LatLng(coordinates.get(1), coordinates.get(0));
                 JsonObject j = feature.properties();
+                assert j != null;
                 String currency = j.get("currency").toString();
                 String id = j.get("id").toString();
                 String value = j.get("value").toString();
