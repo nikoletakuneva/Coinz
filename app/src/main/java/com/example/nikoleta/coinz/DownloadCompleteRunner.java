@@ -7,16 +7,37 @@ import com.mapbox.geojson.Geometry;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.geometry.LatLng;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
 import java.util.List;
+
+import static android.content.Context.MODE_PRIVATE;
+import static com.mapbox.mapboxsdk.Mapbox.getApplicationContext;
 
 public class DownloadCompleteRunner {
     private static String result;
 
+    public static void writeFile() {
+        // Add the geojson text into a file in internal storage
+        try {
+            FileOutputStream file = getApplicationContext().openFileOutput("coinzmap.geojson", MODE_PRIVATE);
+            OutputStreamWriter outputWriter=new OutputStreamWriter(file);
+            outputWriter.write(result);
+            outputWriter.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void downloadComplete(String result) {
         DownloadCompleteRunner.result = result;
-        String geoJsonString = result;
         Feature feature;
-        FeatureCollection fc = FeatureCollection.fromJson(geoJsonString);
+        FeatureCollection fc = FeatureCollection.fromJson(result);
+
+        if (MainActivity.fileDownloaded == 0){
+            writeFile();
+        }
+
         List<Feature> features_list = fc.features();
         assert features_list != null;
         for (int i = 0; i < features_list.size(); i++) {
@@ -34,8 +55,6 @@ public class DownloadCompleteRunner {
                 String value = j.get("value").toString();
                 com.mapbox.mapboxsdk.annotations.Icon icon = null;
 
-
-
                 switch (currency){
                     case "\"QUID\"": icon = MainActivity.icon_quid;
                         break;
@@ -51,5 +70,6 @@ public class DownloadCompleteRunner {
             }
 
         }
+
     }
 }

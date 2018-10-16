@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -18,6 +19,7 @@ import com.mapbox.android.core.location.LocationEngineProvider;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.annotations.Icon;
 import com.mapbox.mapboxsdk.annotations.IconFactory;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
@@ -27,6 +29,15 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin;
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.CameraMode;
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode;
+import com.mapbox.mapboxsdk.storage.Resource;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -40,12 +51,7 @@ public class MainActivity extends AppCompatActivity implements
     private LocationEngine locationEngine;
     private Location originLocation;
 
-
-    DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
-    Date date = new Date();
-    String downloadDate = dateFormat.format(date); // Format: YYYY/MM/DD
-    String url = "http://homepages.inf.ed.ac.uk/stg/coinz/" + downloadDate + "/coinzmap.geojson";
-
+    String downloadDate = ""; // Format: YYYY/MM/DD
     private final String preferencesFile = "MyPrefsFile"; // for storing preferences
 
     static com.mapbox.mapboxsdk.annotations.Icon icon_quid;
@@ -53,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements
     static com.mapbox.mapboxsdk.annotations.Icon icon_dollar;
     static com.mapbox.mapboxsdk.annotations.Icon icon_shilling;
 
+    static int fileDownloaded = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,7 +72,6 @@ public class MainActivity extends AppCompatActivity implements
         mapView = findViewById(R.id.mapboxMapView);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
-
     }
 
     @SuppressLint("LogNotTimber")
@@ -80,36 +86,62 @@ public class MainActivity extends AppCompatActivity implements
             map.getUiSettings().setZoomControlsEnabled(true);
             // Make location information available
             enableLocation();
-            DownloadFileTask task = new DownloadFileTask();
-            task.execute(url);
-            IconFactory iconFactory = IconFactory.getInstance(MainActivity.this);
-            BitmapDrawable iconDrawable = (BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.quid, null);
-            assert iconDrawable != null;
-            Bitmap bitmap = iconDrawable.getBitmap();
-            Bitmap smallMarker = Bitmap.createScaledBitmap(bitmap, 100, 100, false);
-            icon_quid = iconFactory.fromBitmap(smallMarker);
 
-            iconDrawable = (BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.dollar, null);
-            assert iconDrawable != null;
-            bitmap = iconDrawable.getBitmap();
-            smallMarker = Bitmap.createScaledBitmap(bitmap, 100, 100, false);
-            icon_dollar = iconFactory.fromBitmap(smallMarker);
+            //Set the icons for each currency
+            icon_dollar = getIcon(R.drawable.dollar);
+            icon_penny = getIcon(R.drawable.penny);
+            icon_quid = getIcon(R.drawable.quid);
+            icon_shilling = getIcon(R.drawable.shilling);
 
-            iconDrawable = (BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.penny, null);
-            assert iconDrawable != null;
-            bitmap = iconDrawable.getBitmap();
-            smallMarker = Bitmap.createScaledBitmap(bitmap, 100, 100, false);
-            icon_penny = iconFactory.fromBitmap(smallMarker);
+            DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+            Date date = new Date();
+            String todayDate = dateFormat.format(date);
 
-            iconDrawable = (BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.shilling, null);
-            assert iconDrawable != null;
-            bitmap = iconDrawable.getBitmap();
-            smallMarker = Bitmap.createScaledBitmap(bitmap, 100, 100, false);
-            icon_shilling = iconFactory.fromBitmap(smallMarker);
+            if (!todayDate.equals(downloadDate)) {
+                //Download the GeoJSON file
+                DownloadFileTask task = new DownloadFileTask();
+                String url = "http://homepages.inf.ed.ac.uk/stg/coinz/" + todayDate + "/coinzmap.geojson";
+                task.execute(url);
+            }
+            else {
+                //Load map from the downloaded file
+                String geoJsonString = "";
+                fileDownloaded = 1;
+                try {
+                    FileInputStream fis = openFileInput("coinzmap.geojson");
+                    geoJsonString = readStream(fis);
+                    DownloadCompleteRunner.downloadComplete(geoJsonString);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
-            task.getStatus();
+            }
         }
     }
+
+    @NonNull
+    private String readStream(InputStream stream)
+            throws IOException {
+        // Read input from stream, build result as a string
+        StringBuilder sb = new StringBuilder();
+        BufferedReader r = new BufferedReader(new InputStreamReader(stream),1000);
+        for (String line = r.readLine(); line != null; line =r.readLine()){
+            sb.append(line);
+        }
+        stream.close();
+        return sb.toString();
+    }
+
+    private Icon getIcon(int resource) {
+        IconFactory iconFactory = IconFactory.getInstance(MainActivity.this);
+        BitmapDrawable iconDrawable = (BitmapDrawable) ResourcesCompat.getDrawable(getResources(), resource, null);
+        assert iconDrawable != null;
+        Bitmap bitmap = iconDrawable.getBitmap();
+        Bitmap smallMarker = Bitmap.createScaledBitmap(bitmap, 100, 100, false);
+        Icon icon = iconFactory.fromBitmap(smallMarker);
+        return icon;
+    }
+
     @SuppressLint("LogNotTimber")
     private void enableLocation() {
         if (PermissionsManager.areLocationPermissionsGranted(this)) {
@@ -206,6 +238,19 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onStart() {
         super.onStart();
+
+        // Restore preferences
+        SharedPreferences settings = getSharedPreferences(preferencesFile,
+                Context.MODE_PRIVATE);
+        // use ”” as the default value (this might be the first time the app is run)
+        downloadDate = settings.getString("lastDownloadDate", "");
+        if (downloadDate.equals("")) {
+            DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+            Date date = new Date();
+            downloadDate = dateFormat.format(date); // Format: YYYY/MM/DD
+        }
+        Log.d(tag, "[onStart] Recalled lastDownloadDate is ’" + downloadDate + "’");
+
         mapView.onStart();
     }
 
@@ -213,14 +258,6 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onResume() {
         super.onResume();
-
-        // Restore preferences
-        SharedPreferences settings = getSharedPreferences(preferencesFile,
-                Context.MODE_PRIVATE);
-        // use ”” as the default value (this might be the first time the app is run)
-        downloadDate = settings.getString("lastDownloadDate", "");
-        Log.d(tag, "[onStart] Recalled lastDownloadDate is ’" + downloadDate + "’");
-
         mapView.onResume();
     }
 

@@ -11,10 +11,10 @@
         android:id="@+id/mapboxMapView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        mapbox:mapbox_cameraTargetLat="55.9533"
-        mapbox:mapbox_cameraTargetLng="-3.1883"
+        mapbox:mapbox_cameraTargetLat="55.9425206"
+        mapbox:mapbox_cameraTargetLng="-3.1818463"
         mapbox:mapbox_styleUrl="mapbox://styles/mapbox/streets-v10"
-        mapbox:mapbox_cameraZoom="11" />
+        mapbox:mapbox_cameraZoom="15" />
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

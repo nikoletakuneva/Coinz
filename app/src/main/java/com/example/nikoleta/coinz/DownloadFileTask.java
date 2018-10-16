@@ -45,8 +45,8 @@ public class DownloadFileTask extends AsyncTask<String, Void, String> {
         }
         stream.close();
         return sb.toString();
-
     }
+
     @Override
     protected void onPostExecute(String result) {
         super.onPostExecute(result);
