@@ -244,11 +244,7 @@ public class MainActivity extends AppCompatActivity implements
                 Context.MODE_PRIVATE);
         // use ”” as the default value (this might be the first time the app is run)
         downloadDate = settings.getString("lastDownloadDate", "");
-        if (downloadDate.equals("")) {
-            DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
-            Date date = new Date();
-            downloadDate = dateFormat.format(date); // Format: YYYY/MM/DD
-        }
+
         Log.d(tag, "[onStart] Recalled lastDownloadDate is ’" + downloadDate + "’");
 
         mapView.onStart();
