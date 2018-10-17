@@ -34,7 +34,7 @@ public class DownloadCompleteRunner {
         Feature feature;
         FeatureCollection fc = FeatureCollection.fromJson(result);
 
-        if (MainActivity.fileDownloaded == 0){
+        if (MapActivity.fileDownloaded == 0){
             writeFile();
         }
 
@@ -56,17 +56,17 @@ public class DownloadCompleteRunner {
                 com.mapbox.mapboxsdk.annotations.Icon icon = null;
 
                 switch (currency){
-                    case "\"QUID\"": icon = MainActivity.icon_quid;
+                    case "\"QUID\"": icon = MapActivity.icon_quid;
                         break;
-                    case "\"DOLR\"": icon = MainActivity.icon_dollar;
+                    case "\"DOLR\"": icon = MapActivity.icon_dollar;
                         break;
-                    case "\"PENY\"": icon = MainActivity.icon_penny;
+                    case "\"PENY\"": icon = MapActivity.icon_penny;
                         break;
-                    case "\"SHIL\"": icon = MainActivity.icon_shilling;
+                    case "\"SHIL\"": icon = MapActivity.icon_shilling;
                         break;
                 }
 
-                MainActivity.map.addMarker(new MarkerOptions().title(id).snippet(value).icon(icon).position(latlng));
+                MapActivity.map.addMarker(new MarkerOptions().title(id).snippet(value).icon(icon).position(latlng));
             }
 
         }

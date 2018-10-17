@@ -6,7 +6,7 @@
     xmlns:mapbox="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".MapActivity">
     <com.mapbox.mapboxsdk.maps.MapView
         android:id="@+id/mapboxMapView"
         android:layout_width="match_parent"
@@ -26,5 +26,4 @@
             android:background="?attr/colorPrimary"
             app:popupTheme="@style/AppTheme.PopupOverlay" />
     </android.support.design.widget.AppBarLayout>
-    <include layout="@layout/content_main" />
 </android.support.design.widget.CoordinatorLayout>

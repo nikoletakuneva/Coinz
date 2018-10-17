@@ -29,12 +29,9 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin;
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.CameraMode;
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode;
-import com.mapbox.mapboxsdk.storage.Resource;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -42,7 +39,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-public class MainActivity extends AppCompatActivity implements
+public class MapActivity extends AppCompatActivity implements
         OnMapReadyCallback, LocationEngineListener,
         PermissionsListener {
     private String tag = "MainActivity";
@@ -64,7 +61,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_map);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         Mapbox.getInstance(this,
@@ -133,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private Icon getIcon(int resource) {
-        IconFactory iconFactory = IconFactory.getInstance(MainActivity.this);
+        IconFactory iconFactory = IconFactory.getInstance(MapActivity.this);
         BitmapDrawable iconDrawable = (BitmapDrawable) ResourcesCompat.getDrawable(getResources(), resource, null);
         assert iconDrawable != null;
         Bitmap bitmap = iconDrawable.getBitmap();
