@@ -36,8 +36,8 @@
         </activity>
         <activity android:name=".SignUpActivity" />
         <activity android:name=".NewPasswordActivity" />
-        <activity android:name=".ProfileScreen">
-        </activity>
+        <activity android:name=".ProfileScreen"
+            android:theme="@style/AppTheme.NoActionBar"/>
     </application>
 
 </manifest>

@@ -32,7 +32,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
     private String tag = "LoginActivity";
     EditText loginEmail,loginPassword;
-    Button loginButton,signupButton,newPassButton;
+    Button loginButton, signupButton, newPassButton;
     private static final int RC_SIGN_IN = 9001;
     private SignInButton signInWithGoogleButton;
     private FirebaseAuth mAuth;
@@ -109,7 +109,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(tag, "signInWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
-                            startActivity(new Intent(getApplicationContext(),MapActivity.class));
+                            startActivity(new Intent(getApplicationContext(),ProfileScreen.class));
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(tag, "signInWithEmail:failure", task.getException());
@@ -140,7 +140,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if(task.isSuccessful()){
-                    startActivity(new Intent(getApplicationContext(),MapActivity.class));
+                    startActivity(new Intent(getApplicationContext(),ProfileScreen.class));
                     finish();
                 }
                 else{
