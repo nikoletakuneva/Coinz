@@ -1,6 +1,7 @@
 package com.example.nikoleta.coinz;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -276,6 +277,8 @@ public class MapActivity extends AppCompatActivity implements
         editor.apply();
 
         mapView.onStop();
+        startActivity(new Intent(getApplicationContext(), ProfileScreen.class));
+        finish();
     }
 
     @Override
