@@ -42,7 +42,7 @@ public class ProfileScreen extends AppCompatActivity {
             }
         };
 
-        final FirebaseUser user  = firebaseAuth.getCurrentUser();
+        final FirebaseUser user  = firebaseAuth.getCurrentUser()  ;
         textView.setText("Hello " + user.getDisplayName() + "!");
 
         btnDeleteUser.setOnClickListener(new View.OnClickListener() {
