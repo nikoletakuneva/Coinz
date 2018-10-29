@@ -1,93 +1,173 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearLayout"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
-    android:background="#FFF">
+    android:background="#c8f4ef"
+    android:gravity="center">
 
 
     <android.support.design.widget.TextInputLayout
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent">
+        android:id="@+id/emailLayout"
+        android:layout_width="292dp"
+        android:layout_height="54dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/passwordLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.495"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/globe"
+        app:hintTextAppearance="@style/HintColour">
 
         <EditText
+            android:id="@+id/email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textEmailAddress"
-            android:layout_marginTop="10dp"
             android:hint="Email"
-            android:id="@+id/email" />
+            android:theme="@style/EditTextTheme"
+            android:inputType="textEmailAddress" />
 
     </android.support.design.widget.TextInputLayout>
-
 
 
     <android.support.design.widget.TextInputLayout
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent">
+        android:id="@+id/passwordLayout"
+        android:layout_width="287dp"
+        android:layout_height="53dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/emailLayout"
+        app:hintTextAppearance="@style/HintColour">
+
         <EditText
+            android:id="@+id/password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textPassword"
             android:ems="10"
-            android:layout_marginTop="10dp"
-            android:id="@+id/password"
-            android:hint="Password" />
+            android:theme="@style/EditTextTheme"
+            android:hint="Password"
+            android:inputType="textPassword"
+            android:singleLine="false" />
 
     </android.support.design.widget.TextInputLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:orientation="horizontal"
-        android:gravity="center">
-        <Button
-            android:text="Login"
-            android:id="@+id/logInButton"
-            android:layout_width="140dp"
-            android:layout_height="45dp"
-            android:textColor="#FFFF"
-            android:textAllCaps="true"
-            android:layout_marginTop="10dp"
-            android:layout_marginRight="10dp"
-            android:background="@color/colorAccent"/>
-
-        <Button
-            android:text="Register"
-            android:id="@+id/signUpButton"
-            android:layout_width="140dp"
-            android:layout_height="45dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginLeft="10dp"
-            android:textColor="#FFFF"
-            android:background="@color/colorAccent"/>
-    </LinearLayout>
 
     <Button
-        android:text="Forgotten password"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:textAllCaps="false"
-        android:id="@+id/forgottenPasswordButton"
-        android:background="@null"
-        android:textColor="@color/colorPrimary"
+        android:id="@+id/logInButton"
+        android:layout_width="194dp"
+        android:layout_height="35dp"
+        android:layout_marginTop="8dp"
+        android:background="#64dad2"
+        android:text="Login"
+        android:textAllCaps="true"
+        android:textColor="#FFFF"
+        app:layout_constraintBottom_toTopOf="@+id/forgottenPasswordButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/passwordLayout" />
+
+    <Button
+        android:id="@+id/signUpButton"
+        android:layout_width="153dp"
+        android:layout_height="31dp"
         android:layout_marginBottom="8dp"
-        />
+        android:layout_marginEnd="32dp"
+        android:layout_marginTop="8dp"
+        android:background="#64dad2"
+        android:text="Register"
+        android:textColor="#FFFF"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sign_in__google_button"
+        app:layout_constraintVertical_bias="0.568" />
+
+
+    <Button
+        android:id="@+id/forgottenPasswordButton"
+        android:layout_width="162dp"
+        android:layout_height="24dp"
+        android:layout_marginBottom="8dp"
+        android:background="@null"
+        android:text="Forgotten password"
+        android:textAllCaps="false"
+        android:textColor="@android:color/tab_indicator_text"
+        app:layout_constraintBottom_toTopOf="@+id/textView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/logInButton"
+        app:layout_constraintVertical_bias="0.0" />
+
 
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="OR"
+        android:id="@+id/textView"
+        android:layout_width="193dp"
+        android:layout_height="52dp"
         android:gravity="center"
-        android:textColor="@color/colorPrimary"/>
+        android:text="@string/google_sign_in"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toTopOf="@+id/sign_in__google_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/forgottenPasswordButton" />
+
 
     <com.google.android.gms.common.SignInButton
         android:id="@+id/sign_in__google_button"
-        android:layout_width="300dp"
-        android:layout_height="55dp"
-        android:layout_marginTop="15dp"
-        />
+        android:layout_width="271dp"
+        android:layout_height="45dp"
+        android:background="#64dad2"
+        android:layout_marginBottom="48dp"
+        app:layout_constraintBottom_toTopOf="@+id/noAccount"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.571"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/noAccount"
+        android:layout_width="150dp"
+        android:layout_height="24dp"
+        android:layout_marginBottom="32dp"
+        android:text="Don't have an account?"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/signUpButton"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageView
+        android:id="@+id/globe"
+        android:layout_width="323dp"
+        android:layout_height="228dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.818"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.103"
+        app:srcCompat="@drawable/globecoins" />
+
+    <ImageView
+        android:id="@+id/imageView3"
+        android:layout_width="326dp"
+        android:layout_height="114dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.675"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.179"
+        app:srcCompat="@drawable/coins_title" />
 
 
-
-</LinearLayout>
+</android.support.constraint.ConstraintLayout>

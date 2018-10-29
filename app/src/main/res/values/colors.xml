@@ -5,4 +5,6 @@
     <color name="colorAccent">#ff4a68</color>
     <color name="color">#ffe554</color>
     <color name="frame_colour">#ffc361</color>
+    <color name="primary">#64dad2</color>
+    <color name="hint">#6abab5</color>
 </resources>
