@@ -71,7 +71,17 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                signIn(loginEmail.getText().toString(), loginPassword.getText().toString());
+                if(loginEmail.getText().toString().isEmpty()) {
+                    Toast.makeText(LoginActivity.this, "Please enter an email.",
+                            Toast.LENGTH_SHORT).show();
+                }
+                else if(loginPassword.getText().toString().isEmpty()) {
+                    Toast.makeText(LoginActivity.this, "Please enter a password.",
+                            Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    signIn(loginEmail.getText().toString(), loginPassword.getText().toString());
+                }
             }
         });
         signupButton.setOnClickListener(new View.OnClickListener() {

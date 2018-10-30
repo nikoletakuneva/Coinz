@@ -120,7 +120,7 @@
         android:fontFamily="serif"
         android:textAlignment="center"
         android:textAppearance="@android:style/TextAppearance.DeviceDefault"
-        android:textColor="#0e96bc"
+        android:textColor="@android:color/tab_indicator_text"
         android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/play"

@@ -1,13 +1,17 @@
 package com.example.nikoleta.coinz;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -18,7 +22,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
 
-public class SignUpActivity extends AppCompatActivity {
+public class SignUpActivity extends Activity {
     EditText email,password;
     Button signUpButton,loginButton;
     FirebaseAuth mAuth;
@@ -37,13 +41,33 @@ public class SignUpActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
+        DisplayMetrics dm = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(dm);
+        int width = dm.widthPixels;
+        int height = dm.heightPixels;
+        getWindow().setLayout(width, (int)(height * .65));
+        WindowManager.LayoutParams params = getWindow().getAttributes();
+        params.gravity = Gravity.CENTER;
+        params.x = 0;
+        params.y = -20;
+        getWindow().setAttributes(params);
 
         signUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mEmail = email.getText().toString();
                 mPassword = password.getText().toString();
-                createAccount(mEmail, mPassword);
+                if(mEmail.isEmpty()) {
+                    Toast.makeText(SignUpActivity.this, "Please enter an email.",
+                            Toast.LENGTH_SHORT).show();
+                }
+                else if(mPassword.isEmpty()) {
+                    Toast.makeText(SignUpActivity.this, "Please enter a password.",
+                            Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    createAccount(mEmail, mPassword);
+                }
                 }
         });
 
@@ -55,7 +79,7 @@ public class SignUpActivity extends AppCompatActivity {
         });
 
         if(mAuth.getCurrentUser()!=null){
-            startActivity(new Intent(getApplicationContext(),MapActivity.class));
+            startActivity(new Intent(getApplicationContext(),ProfileScreen.class));
         }
     }
 
@@ -79,7 +103,7 @@ public class SignUpActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if(task.isSuccessful()){
                             Log.d("SignUpActivity", "createUserWithEmail:success");
-                            startActivity(new Intent(getApplicationContext(),MapActivity.class));
+                            startActivity(new Intent(getApplicationContext(),ProfileScreen.class));
                             finish();
                         }
                         else{
