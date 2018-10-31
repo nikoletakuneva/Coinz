@@ -46,8 +46,9 @@
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings" />
-        <activity android:name=".GameRulesActivity"
-            android:theme="@style/Theme.AppCompat.Dialog"/>
+        <activity
+            android:name=".GameRulesActivity"
+            android:theme="@style/Theme.AppCompat.Dialog" />
     </application>
 
 </manifest>

@@ -16,7 +16,7 @@ import com.google.firebase.auth.FirebaseUser;
 
 public class ProfileScreen extends AppCompatActivity {
     TextView textView;
-    Button btnDeleteUser,btnLogout, btnPlay, btnGameRules;
+    Button btnDeleteUser,btnLogout, btnPlay, btnGameRules, btnBoosts;
     FirebaseAuth firebaseAuth;
     private FirebaseAuth.AuthStateListener  authStateListener;
 
@@ -29,6 +29,7 @@ public class ProfileScreen extends AppCompatActivity {
         btnLogout = (Button) findViewById(R.id.logout);
         btnPlay = (Button) findViewById(R.id.play);
         btnGameRules = (Button) findViewById(R.id.rules);
+        btnBoosts = (Button) findViewById(R.id.boosts);
 
         firebaseAuth = FirebaseAuth.getInstance();
 
@@ -88,6 +89,7 @@ public class ProfileScreen extends AppCompatActivity {
                 startActivity(new Intent(getApplicationContext(), GameRulesActivity.class));
             }
         });
+
 
     }
 

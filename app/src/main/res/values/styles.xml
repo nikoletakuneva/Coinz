@@ -24,11 +24,10 @@
         <item name="colorControlHighlight">@color/primary</item>
 
     </style>
+
     <style name="HintColour" parent="@android:style/TextAppearance">
         <item name="android:textColor">@color/hint</item>
     </style>
-
-
 
 
 </resources>
