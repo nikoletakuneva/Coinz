@@ -16,13 +16,14 @@ import static com.mapbox.mapboxsdk.Mapbox.getApplicationContext;
 
 public class DownloadCompleteRunner {
     private static String result;
+    static String ratesStr = "";
 
-    public static void writeFile() {
+    public static void writeFile(String str) {
         // Add the geojson text into a file in internal storage
         try {
             FileOutputStream file = getApplicationContext().openFileOutput("coinzmap.geojson", MODE_PRIVATE);
             OutputStreamWriter outputWriter=new OutputStreamWriter(file);
-            outputWriter.write(result);
+            outputWriter.write(str);
             outputWriter.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -31,14 +32,17 @@ public class DownloadCompleteRunner {
 
     public static void downloadComplete(String result) {
         DownloadCompleteRunner.result = result;
+        int ind = result.indexOf("features");
+        ratesStr = result.substring(0,ind-1);
         Feature feature;
         FeatureCollection fc = FeatureCollection.fromJson(result);
 
         if (MapActivity.fileDownloaded == 0){
-            writeFile();
+            writeFile(result);
         }
 
         List<Feature> features_list = fc.features();
+
         assert features_list != null;
         for (int i = 0; i < features_list.size(); i++) {
             feature = features_list.get(i);
@@ -50,23 +54,23 @@ public class DownloadCompleteRunner {
                 LatLng latlng = new LatLng(coordinates.get(1), coordinates.get(0));
                 JsonObject j = feature.properties();
                 assert j != null;
-                String currency = j.get("currency").toString();
-                String id = j.get("id").toString();
-                String value = j.get("value").toString();
+                String currency = j.get("currency").toString().replaceAll("\"", "");
+                //String id = j.get("id").toString();
+                String value = j.get("value").toString().replaceAll("\"", "");
                 com.mapbox.mapboxsdk.annotations.Icon icon = null;
 
                 switch (currency){
-                    case "\"QUID\"": icon = MapActivity.icon_quid;
+                    case "QUID": icon = MapActivity.icon_quid;
                         break;
-                    case "\"DOLR\"": icon = MapActivity.icon_dollar;
+                    case "DOLR": icon = MapActivity.icon_dollar;
                         break;
-                    case "\"PENY\"": icon = MapActivity.icon_penny;
+                    case "PENY": icon = MapActivity.icon_penny;
                         break;
-                    case "\"SHIL\"": icon = MapActivity.icon_shilling;
+                    case "SHIL": icon = MapActivity.icon_shilling;
                         break;
                 }
 
-                MapActivity.map.addMarker(new MarkerOptions().title(id).snippet(value).icon(icon).position(latlng));
+                MapActivity.map.addMarker(new MarkerOptions().title(currency).snippet(value).icon(icon).position(latlng));
             }
 
         }

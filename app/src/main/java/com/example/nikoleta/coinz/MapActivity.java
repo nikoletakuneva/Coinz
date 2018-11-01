@@ -23,16 +23,24 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineListener;
 import com.mapbox.android.core.location.LocationEnginePriority;
 import com.mapbox.android.core.location.LocationEngineProvider;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
+import com.mapbox.geojson.Feature;
+import com.mapbox.geojson.FeatureCollection;
+import com.mapbox.geojson.Geometry;
+import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.annotations.Icon;
 import com.mapbox.mapboxsdk.annotations.IconFactory;
+import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.maps.MapView;
@@ -44,13 +52,17 @@ import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class MapActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, LocationEngineListener,
@@ -61,6 +73,7 @@ public class MapActivity extends AppCompatActivity
     static MapboxMap map;
     private LocationEngine locationEngine;
     private Location originLocation;
+    private boolean mapChange = false;
 
     String downloadDate = ""; // Format: YYYY/MM/DD
     private final String preferencesFile = "MyPrefsFile"; // for storing preferences
@@ -79,14 +92,8 @@ public class MapActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
+        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+        FirebaseUser currUser = firebaseAuth.getCurrentUser();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -95,8 +102,11 @@ public class MapActivity extends AppCompatActivity
         toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+        View headerView = navigationView.getHeaderView(0);
+        TextView email = headerView.findViewById(R.id.nav_header_email);
+        email.setText(currUser.getEmail());
 
+        navigationView.setNavigationItemSelectedListener(this);
 
         Mapbox.getInstance(this,
                 "pk.eyJ1Ijoibmlrb2xldGFrdW5ldmEiLCJhIjoiY2puNHAzNTcwMDFxbjNxbzRpbzZyN2s3ZSJ9.AE8kZVzoWo1uOZs4JXogDA");
@@ -104,12 +114,6 @@ public class MapActivity extends AppCompatActivity
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
 
-//        button.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                startActivity(new Intent(getApplicationContext(), NavigationDrawer.class));
-//            }
-//        });
     }
 
     @SuppressLint("LogNotTimber")
@@ -139,6 +143,7 @@ public class MapActivity extends AppCompatActivity
                 //Download the GeoJSON file
                 DownloadFileTask task = new DownloadFileTask();
                 String url = "http://homepages.inf.ed.ac.uk/stg/coinz/" + todayDate + "/coinzmap.geojson";
+                downloadDate = todayDate;
                 task.execute(url);
             }
             else {
@@ -242,9 +247,41 @@ public class MapActivity extends AppCompatActivity
             Log.d(tag, "[onLocationChanged] location is not null");
             originLocation = location;
             setCameraPosition(location);
+
+            double user_latitude = location.getLatitude();
+            double user_longitude = location.getLongitude();
+
+            for (Marker marker: map.getMarkers()) {
+                LatLng latlng = marker.getPosition();
+                double marker_latitude = latlng.getLatitude();
+                double marker_longitude = latlng.getLongitude();
+                if (distance (user_latitude, user_longitude, marker_latitude, marker_longitude) <= 25) {
+                    mapChange = true;
+                    map.removeMarker(marker);
+                }
+            }
         }
     }
 
+    private double distance(double lat1, double lng1, double lat2, double lng2) {
+
+        double earthRadius = 6371000; // in metres
+
+        double dLat = Math.toRadians(lat2-lat1);
+        double dLng = Math.toRadians(lng2-lng1);
+
+        double sindLat = Math.sin(dLat / 2);
+        double sindLng = Math.sin(dLng / 2);
+
+        double a = Math.pow(sindLat, 2) + Math.pow(sindLng, 2)
+                * Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2));
+
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+        double dist = earthRadius * c;
+
+        return dist;
+    }
 
     @Override
     @SuppressWarnings("MissingPermission")
@@ -315,6 +352,22 @@ public class MapActivity extends AppCompatActivity
         editor.putString("lastDownloadDate", downloadDate);
         // Apply the edits!
         editor.apply();
+
+        if (mapChange == true) {
+            List<Feature> featuresList = new ArrayList<>();
+            for (Marker marker: map.getMarkers()) {
+                LatLng pos = marker.getPosition();
+                Point p = Point.fromLngLat(pos.getLongitude(), pos.getLatitude());
+                Geometry g = (Geometry) p;
+                Feature f = Feature.fromGeometry(g);
+                f.addStringProperty("value", marker.getSnippet());
+                f.addStringProperty("currency", marker.getTitle());
+                featuresList.add(f);
+            }
+            FeatureCollection fc = FeatureCollection.fromFeatures(featuresList);
+            String geoJsonString = fc.toJson().substring(1);
+            DownloadCompleteRunner.writeFile(DownloadCompleteRunner.ratesStr + geoJsonString);
+        }
 
         mapView.onStop();
         startActivity(new Intent(getApplicationContext(), ProfileScreen.class));
