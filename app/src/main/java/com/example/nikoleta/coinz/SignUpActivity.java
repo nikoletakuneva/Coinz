@@ -18,8 +18,16 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class SignUpActivity extends Activity {
@@ -102,8 +110,15 @@ public class SignUpActivity extends Activity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if(task.isSuccessful()){
+
                             Log.d("SignUpActivity", "createUserWithEmail:success");
-                            startActivity(new Intent(getApplicationContext(),ProfileScreen.class));
+                            FirebaseFirestore db = FirebaseFirestore.getInstance();
+                            FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+                            FirebaseUser user = firebaseAuth.getCurrentUser();
+
+                            db.collection("users").document(user.getUid()).set(new User(email, password));
+
+                            startActivity(new Intent(getApplicationContext(),UsernameActivity.class));
                             finish();
                         }
                         else{
