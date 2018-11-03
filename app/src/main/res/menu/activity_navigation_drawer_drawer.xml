@@ -6,33 +6,40 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_camera"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="Import" />
+            android:icon="@drawable/wallet_icon"
+            android:title="Wallet" />
         <item
             android:id="@+id/nav_gallery"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Gallery" />
+            android:icon="@drawable/piggybank_icon"
+            android:title="Piggy bank" />
         <item
             android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="Slideshow" />
+            android:icon="@drawable/bank_icon"
+            android:title="Bank" />
         <item
             android:id="@+id/nav_manage"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="Tools" />
+            android:icon="@drawable/boosts_icon"
+            android:title="Boosts" />
     </group>
 
-    <item android:title="Communicate">
-        <menu>
+    <group android:id="@+id/communicate"
+        android:checkableBehavior="single">
             <item
                 android:id="@+id/nav_share"
-                android:icon="@drawable/ic_menu_share"
-                android:title="Share" />
+                android:icon="@drawable/gift_icon"
+                android:title="Send coins" />
             <item
                 android:id="@+id/nav_send"
                 android:icon="@drawable/ic_menu_send"
                 android:title="Send" />
-        </menu>
-    </item>
+    </group>
+
+    <group android:id="@+id/menu_bottom"
+        android:checkableBehavior="single">
+            <item
+                android:id="@+id/logout"
+                android:icon="@drawable/logout_icon"
+                android:title="Log out" />
+    </group>
 
 </menu>

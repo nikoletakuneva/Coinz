@@ -25,8 +25,13 @@ import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineListener;
 import com.mapbox.android.core.location.LocationEnginePriority;
@@ -96,7 +101,7 @@ public class MapActivity extends AppCompatActivity
         FirebaseUser currUser = firebaseAuth.getCurrentUser();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
@@ -105,6 +110,33 @@ public class MapActivity extends AppCompatActivity
         View headerView = navigationView.getHeaderView(0);
         TextView email = headerView.findViewById(R.id.nav_header_email);
         email.setText(currUser.getEmail());
+
+        TextView usernameText = headerView.findViewById(R.id.usernameView);
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String username = currUser.getDisplayName();
+        if (username == null || username.equals("")) {
+            DocumentReference docRef = db.collection("users").document(currUser.getUid());
+            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
+                            Log.d("ProfileScreen", "DocumentSnapshot data: " + document.getData());
+                            String username = document.getString("username");
+                            usernameText.setText(username);
+                        } else {
+                            Log.d("ProfileScreen", "No such document");
+                        }
+                    } else {
+                        Log.d("ProfileScreen", "get failed with ", task.getException());
+                    }
+                }
+            });
+        }
+        else {
+            usernameText.setText(username);
+        }
 
         navigationView.setNavigationItemSelectedListener(this);
 
