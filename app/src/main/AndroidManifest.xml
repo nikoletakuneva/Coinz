@@ -51,8 +51,8 @@
             android:theme="@style/Theme.AppCompat.Dialog" />
         <activity
             android:name=".UsernameActivity"
-            android:theme="@style/Theme.AppCompat.Dialog">
-        </activity>
+            android:theme="@style/Theme.AppCompat.Dialog" />
+        <activity android:name=".Wallet"></activity>
     </application>
 
 </manifest>

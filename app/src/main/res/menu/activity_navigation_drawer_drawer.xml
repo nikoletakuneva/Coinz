@@ -5,19 +5,19 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_camera"
+            android:id="@+id/nav_wallet"
             android:icon="@drawable/wallet_icon"
             android:title="Wallet" />
         <item
-            android:id="@+id/nav_gallery"
+            android:id="@+id/nav_piggybank"
             android:icon="@drawable/piggybank_icon"
             android:title="Piggy bank" />
         <item
-            android:id="@+id/nav_slideshow"
+            android:id="@+id/nav_bank"
             android:icon="@drawable/bank_icon"
             android:title="Bank" />
         <item
-            android:id="@+id/nav_manage"
+            android:id="@+id/nav_boost"
             android:icon="@drawable/boosts_icon"
             android:title="Boosts" />
     </group>
@@ -25,7 +25,7 @@
     <group android:id="@+id/communicate"
         android:checkableBehavior="single">
             <item
-                android:id="@+id/nav_share"
+                android:id="@+id/nav_gift"
                 android:icon="@drawable/gift_icon"
                 android:title="Send coins" />
             <item
