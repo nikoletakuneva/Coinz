@@ -55,7 +55,7 @@ public class DownloadCompleteRunner {
                 JsonObject j = feature.properties();
                 assert j != null;
                 String currency = j.get("currency").toString().replaceAll("\"", "");
-                //String id = j.get("id").toString();
+                String id = j.get("id").toString().replaceAll("\"", "");
                 String value = j.get("value").toString().replaceAll("\"", "");
                 com.mapbox.mapboxsdk.annotations.Icon icon = null;
 
@@ -70,7 +70,7 @@ public class DownloadCompleteRunner {
                         break;
                 }
 
-                MapActivity.map.addMarker(new MarkerOptions().title(currency).snippet(value).icon(icon).position(latlng));
+                MapActivity.map.addMarker(new MarkerOptions().title(String.format("%.2f", Double.parseDouble(value)) + " " + currency).snippet(id).icon(icon).position(latlng));
             }
 
         }

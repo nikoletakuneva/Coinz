@@ -36,10 +36,10 @@
         </activity>
         <activity
             android:name=".SignUpActivity"
-            android:theme="@style/Theme.AppCompat.Dialog" />
+            android:theme="@style/Dialog" />
         <activity
             android:name=".NewPasswordActivity"
-            android:theme="@style/Theme.AppCompat.Dialog" />
+            android:theme="@style/Dialog" />
         <activity
             android:name=".ProfileScreen"
             android:theme="@style/AppTheme.NoActionBar" />
@@ -48,11 +48,14 @@
             android:label="@string/title_activity_settings" />
         <activity
             android:name=".GameRulesActivity"
-            android:theme="@style/Theme.AppCompat.Dialog" />
+            android:theme="@style/Dialog" />
         <activity
             android:name=".UsernameActivity"
-            android:theme="@style/Theme.AppCompat.Dialog" />
-        <activity android:name=".Wallet"></activity>
+            android:theme="@style/Dialog" />
+        <activity
+            android:name=".Wallet"
+            android:theme="@style/Dialog_Full_Width"
+            />
     </application>
 
 </manifest>

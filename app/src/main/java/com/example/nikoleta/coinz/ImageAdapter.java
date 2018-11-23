@@ -9,20 +9,25 @@ import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 class ImageAdapter extends BaseAdapter {
     private Context mContext;
-    private final String[] itemName;
+    //private final String[] itemName;
     // references to our images
-    private Integer[] mThumbIds;
+    //private Integer[] mThumbIds;
+    private Coin[] coins;
+    public List<Coin> selectedPositions;
 
-    public ImageAdapter(Context c, String[] itemName, Integer[] thumbIDs) {
-        mContext = c;
-        this.itemName = itemName;
-        this.mThumbIds = thumbIDs;
+    public ImageAdapter(Context c, Coin[] coins) {
+        this.mContext = c;
+        this.coins = coins;
+        selectedPositions = new ArrayList<>();
     }
 
     public int getCount() {
-        return mThumbIds.length;
+        return coins.length;
     }
 
     public Object getItem(int position) {
@@ -35,38 +40,51 @@ class ImageAdapter extends BaseAdapter {
 
     // create a new ImageView for each item referenced by the Adapter
     public View getView(int position, View convertView, ViewGroup parent) {
-        ViewHolder holder;
-
+        GridItem holder;
+        Wallet.GridItemView customView;
         if (convertView==null) {
-
-            holder = new ViewHolder();
+            holder = new GridItem();
             convertView = LayoutInflater.from(mContext).inflate(R.layout.grid_item, null);
             holder.textView = (TextView) convertView.findViewById(R.id.grid_label);
             holder.imageView = (ImageView) convertView.findViewById(R.id.grid_image);
-
             convertView.setTag(holder);
-        }else{
-
-            holder = (ViewHolder)convertView.getTag();
+            //customView = new Wallet.GridItemView(mContext);
         }
+        else {
+            holder = (GridItem)convertView.getTag();
+            //customView = (Wallet.GridItemView) convertView;
 
-        holder.textView.setText(itemName[position]);
+        }
+        String currency = coins[position].getCurrency();
+        double value = coins[position].getValue();
+        holder.textView.setText(String.format("%.2f", value) + " " + currency);
 
-        if (itemName[position].equalsIgnoreCase("DOLR")){
+        if (currency.equalsIgnoreCase("DOLR")){
             holder.imageView.setImageResource(R.drawable.dollar);
-        }else if (itemName[position].equalsIgnoreCase("SHIL")){
+        }else if (currency.equalsIgnoreCase("SHIL")){
             holder.imageView.setImageResource(R.drawable.shilling);
-        }else if (itemName[position].equalsIgnoreCase("QUID")){
+        }else if (currency.equalsIgnoreCase("QUID")){
             holder.imageView.setImageResource(R.drawable.quid);
         }else {
             holder.imageView.setImageResource(R.drawable.penny);
         }
 
+        //customView.display(coins[position].getCurrency(), selectedPositions.contains(position));
+        //customView.display(selectedPositions.contains(position));
         return convertView;
     }
 
-    class ViewHolder{
-        TextView textView;
-        ImageView imageView;
+    class GridItem{
+        private TextView textView;
+        private ImageView imageView;
+        boolean selected = false;
+
+        public boolean isSelected() {
+            return selected;
+        }
+
+        public void setSelected(boolean s) {
+            this.selected = s;
+        }
     }
 }

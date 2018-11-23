@@ -402,8 +402,6 @@ public class MapActivity extends AppCompatActivity
         }
 
         mapView.onStop();
-        startActivity(new Intent(getApplicationContext(), ProfileScreen.class));
-        finish();
     }
 
     @Override
@@ -431,6 +429,8 @@ public class MapActivity extends AppCompatActivity
             drawer.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
+            startActivity(new Intent(getApplicationContext(), ProfileScreen.class));
+            finish();
         }
     }
 
@@ -463,7 +463,7 @@ public class MapActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_wallet) {
-            startActivity(new Intent(this, Wallet.class));
+            startActivity(new Intent(getApplicationContext(), Wallet.class));
         } else if (id == R.id.nav_piggybank) {
 
         } else if (id == R.id.nav_bank) {
