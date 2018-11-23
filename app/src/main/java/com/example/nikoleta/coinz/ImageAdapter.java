@@ -6,7 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -17,17 +16,17 @@ class ImageAdapter extends BaseAdapter {
     //private final String[] itemName;
     // references to our images
     //private Integer[] mThumbIds;
-    private Coin[] coins;
-    public List<Coin> selectedPositions;
+    private List<Coin> coins;
+    public List<Integer> selectedPositions;
 
-    public ImageAdapter(Context c, Coin[] coins) {
+    public ImageAdapter(Context c, List<Coin> coins) {
         this.mContext = c;
         this.coins = coins;
-        selectedPositions = new ArrayList<>();
+        selectedPositions = new ArrayList<Integer>();
     }
 
     public int getCount() {
-        return coins.length;
+        return coins.size();
     }
 
     public Object getItem(int position) {
@@ -55,8 +54,8 @@ class ImageAdapter extends BaseAdapter {
             //customView = (Wallet.GridItemView) convertView;
 
         }
-        String currency = coins[position].getCurrency();
-        double value = coins[position].getValue();
+        String currency = coins.get(position).getCurrency();
+        double value = coins.get(position).getValue();
         holder.textView.setText(String.format("%.2f", value) + " " + currency);
 
         if (currency.equalsIgnoreCase("DOLR")){
@@ -71,13 +70,21 @@ class ImageAdapter extends BaseAdapter {
 
         //customView.display(coins[position].getCurrency(), selectedPositions.contains(position));
         //customView.display(selectedPositions.contains(position));
+        boolean isSelected = selectedPositions.contains(position);
+
+        if (isSelected){
+            convertView.setBackgroundResource(R.drawable.coin_selected);
+        } else {
+            convertView.setBackgroundResource(R.drawable.coin_not_selected);
+        }
+        //holder.imageView.setOnClickListener(v -> holder.imageView.setBackgroundResource(isSelected ? R.drawable.coin_selected : R.drawable.coin_not_selected));
         return convertView;
     }
 
     class GridItem{
         private TextView textView;
         private ImageView imageView;
-        boolean selected = false;
+        boolean selected=false;
 
         public boolean isSelected() {
             return selected;
