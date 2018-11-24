@@ -5,12 +5,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -20,6 +22,7 @@ import java.util.List;
 
 public class Wallet extends AppCompatActivity {
 
+    static double moneyBank=0;
     static final String[] ITEM_LIST = new String[] { "QUID", "SHIL",
             "PENY", "DOLR" };
     @Override
@@ -39,14 +42,17 @@ public class Wallet extends AppCompatActivity {
         for (Coin coin : coins) {
             totalMoney = totalMoney + coin.getValue();
         }
-        walletSummary.setText(String.format("Coins: \n%d\n\nTotal:\n%.2f", coinsNum, totalMoney));
+        walletSummary.setText(String.format("Coins: \n%d\n\nTotal:\n%.2f GOLD", coinsNum, totalMoney));
 
         Button btnBank = (Button) findViewById(R.id.send_to_bank);
         btnBank.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
+                for (Coin coin : coinsSelected) {
+                    moneyBank = moneyBank + coin.getValue();
 
-
+                }
+                Toast.makeText(Wallet.this, "Money in Bank: " + String.format("%.2f", moneyBank),  Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -54,16 +60,18 @@ public class Wallet extends AppCompatActivity {
         selectAll.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                adapter.selectedPositions.clear();
-                coinsSelected.clear();
-                coinsSelected.addAll(coins);
-                for (int i=0; i<coinsNum; i++) {
+                if (coinsSelected.size() != coinsNum) {
+                    adapter.selectedPositions.clear();
+                    coinsSelected.clear();
+                    coinsSelected.addAll(coins);
+                    for (int i=0; i<coinsNum; i++) {
+                        adapter.selectedPositions.add(i);
 
-
-                    adapter.selectedPositions.add(i);
-
-
-                    v.setBackgroundResource(R.drawable.coin_selected);
+                        View viewItem = gridview.getChildAt(i);
+                        if (viewItem != null) {
+                            viewItem.setBackgroundResource(R.drawable.coin_selected);
+                        }
+                    }
                 }
             }
         });
@@ -72,55 +80,37 @@ public class Wallet extends AppCompatActivity {
         deselectAll.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
+                if (coinsSelected.size() != 0) {
+                    adapter.selectedPositions.clear();
+                    coinsSelected.clear();
+                    for (int i=0; i<coinsNum; i++) {
+
+                        View viewItem = gridview.getChildAt(i);
+                        if (viewItem != null) {
+                            viewItem.setBackgroundResource(R.drawable.coin_not_selected);
+                        }
+
+                    }
+                }
 
             }
         });
-
 
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-//                Toast.makeText(Wallet.this, "" + position,
-//                        Toast.LENGTH_SHORT).show();
-
                 int selectedIndex = adapter.selectedPositions.indexOf(position);
                 if (selectedIndex > -1) {
                     adapter.selectedPositions.remove(selectedIndex);
-                    //((GridItemView) v).display(false);
-                    coinsSelected.remove((Coin) parent.getItemAtPosition(position));
                     v.setBackgroundResource(R.drawable.coin_not_selected);
+                    Coin c = ImageAdapter.coins.get(position);
+                    coinsSelected.remove(c);
                 } else {
                     adapter.selectedPositions.add(position);
-                    //((GridItemView) v).display(true);
                     v.setBackgroundResource(R.drawable.coin_selected);
-                    coinsSelected.add((Coin) parent.getItemAtPosition(position));
+                    Coin c = ImageAdapter.coins.get(position);
+                    coinsSelected.add(c);
                 }
-//                boolean isSelected = coinsSelected.get(position).isSelected();
-//                coinsSelected.get(position).setSelected(!isSelected);
-
             }
         });
-    }
-
-    public static class GridItemView extends FrameLayout {
-
-        private ImageView imageView;
-        private TextView textView;
-
-        public GridItemView(Context context) {
-            super(context);
-            LayoutInflater.from(context).inflate(R.layout.grid_item, this);
-            imageView = (ImageView) getRootView().findViewById(R.id.grid_image);
-            textView = (TextView) getRootView().findViewById(R.id.grid_label);
-        }
-
-//        public void display(String text, boolean isSelected) {
-//            //textView.setText(text);
-//            display(isSelected);
-//        }
-
-        public void display(boolean isSelected) {
-            //imageView.setBackgroundResource(isSelected ? R.drawable.coin_selected : R.drawable.coin_not_selected);
-            //textView.setBackgroundResource(isSelected ? R.drawable.coin_selected : R.drawable.coin_not_selected);
-        }
     }
 }

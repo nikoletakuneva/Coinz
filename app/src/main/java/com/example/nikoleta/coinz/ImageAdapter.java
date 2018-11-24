@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -16,7 +17,7 @@ class ImageAdapter extends BaseAdapter {
     //private final String[] itemName;
     // references to our images
     //private Integer[] mThumbIds;
-    private List<Coin> coins;
+    public static List<Coin> coins;
     public List<Integer> selectedPositions;
 
     public ImageAdapter(Context c, List<Coin> coins) {
@@ -29,8 +30,8 @@ class ImageAdapter extends BaseAdapter {
         return coins.size();
     }
 
-    public Object getItem(int position) {
-        return null;
+    public Coin getItem(int position) {
+        return coins.get(position);
     }
 
     public long getItemId(int position) {
@@ -40,18 +41,15 @@ class ImageAdapter extends BaseAdapter {
     // create a new ImageView for each item referenced by the Adapter
     public View getView(int position, View convertView, ViewGroup parent) {
         GridItem holder;
-        Wallet.GridItemView customView;
         if (convertView==null) {
-            holder = new GridItem();
+            holder = new GridItem(coins.get(position));
             convertView = LayoutInflater.from(mContext).inflate(R.layout.grid_item, null);
             holder.textView = (TextView) convertView.findViewById(R.id.grid_label);
             holder.imageView = (ImageView) convertView.findViewById(R.id.grid_image);
             convertView.setTag(holder);
-            //customView = new Wallet.GridItemView(mContext);
         }
         else {
             holder = (GridItem)convertView.getTag();
-            //customView = (Wallet.GridItemView) convertView;
 
         }
         String currency = coins.get(position).getCurrency();
@@ -77,14 +75,26 @@ class ImageAdapter extends BaseAdapter {
         } else {
             convertView.setBackgroundResource(R.drawable.coin_not_selected);
         }
-        //holder.imageView.setOnClickListener(v -> holder.imageView.setBackgroundResource(isSelected ? R.drawable.coin_selected : R.drawable.coin_not_selected));
         return convertView;
     }
 
     class GridItem{
         private TextView textView;
         private ImageView imageView;
+        private Coin coin;
         boolean selected=false;
+
+        GridItem(Coin coin) {
+            this.coin = coin;
+        }
+
+        public Coin getCoin() {
+            return coin;
+        }
+
+        public void setCoin(Coin coin) {
+            this.coin = coin;
+        }
 
         public boolean isSelected() {
             return selected;

@@ -123,8 +123,7 @@ public class SignUpActivity extends Activity {
                         }
                         else{
                             Log.w("SignUpActivity", "createUserWithEmail:failure", task.getException());
-                            Toast.makeText(SignUpActivity.this, "Couldn't register. Try again." +
-                                            task.getException(),
+                            Toast.makeText(SignUpActivity.this, "Couldn't register. Try again.",
                                     Toast.LENGTH_SHORT).show();
                         }
                     }
