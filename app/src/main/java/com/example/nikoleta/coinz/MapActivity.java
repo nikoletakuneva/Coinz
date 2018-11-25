@@ -467,12 +467,10 @@ public class MapActivity extends AppCompatActivity
         } else if (id == R.id.nav_piggybank) {
 
         } else if (id == R.id.nav_bank) {
-
+            startActivity(new Intent(getApplicationContext(), Bank.class));
         } else if (id == R.id.nav_boost) {
 
         } else if (id == R.id.nav_gift) {
-
-        } else if (id == R.id.nav_send) {
 
         }
 

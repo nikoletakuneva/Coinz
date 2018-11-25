@@ -54,8 +54,10 @@
             android:theme="@style/Dialog" />
         <activity
             android:name=".Wallet"
-            android:theme="@style/Dialog_Full_Width"
-            />
+            android:theme="@style/Dialog_Full_Width" />
+        <activity
+            android:name=".Bank"
+            android:theme="@style/Dialog_Full_Width" />
     </application>
 
 </manifest>
