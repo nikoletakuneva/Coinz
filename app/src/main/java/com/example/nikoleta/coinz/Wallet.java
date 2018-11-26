@@ -1,6 +1,7 @@
 package com.example.nikoleta.coinz;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -14,6 +15,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,8 +30,6 @@ import java.util.Collection;
 import java.util.List;
 
 public class Wallet extends AppCompatActivity {
-
-    static double moneyBank=0;
     static final String[] ITEM_LIST = new String[] { "QUID", "SHIL",
             "PENY", "DOLR" };
     @Override
@@ -48,11 +55,34 @@ public class Wallet extends AppCompatActivity {
         btnBank.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                for (Coin coin : coinsSelected) {
-                    moneyBank = moneyBank + coin.getValue();
 
-                }
-                Toast.makeText(Wallet.this, "Money in Bank: " + String.format("%.2f", moneyBank),  Toast.LENGTH_SHORT).show();
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+
+                String id = user.getUid();
+                DocumentReference docRef = db.collection("users").document(user.getUid());
+                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        double moneyBank=0.0;
+                        for (Coin coin : coinsSelected) {
+                            moneyBank = moneyBank + coin.getValue();
+                        }
+                        double money;
+                        if (!task.getResult().contains("money")) {
+                            money = 0.0;
+                        }
+                        else {
+                            money = Double.parseDouble(task.getResult().get("money").toString());
+                        }
+                        db.collection("users").document(user.getUid()).update("money", moneyBank + money);
+                        Toast.makeText(Wallet.this, "Money in Bank: " + String.format("%.2f", moneyBank + money),  Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+
+
             }
         });
 
@@ -66,7 +96,6 @@ public class Wallet extends AppCompatActivity {
                     coinsSelected.addAll(coins);
                     for (int i=0; i<coinsNum; i++) {
                         adapter.selectedPositions.add(i);
-
                         View viewItem = gridview.getChildAt(i);
                         if (viewItem != null) {
                             viewItem.setBackgroundResource(R.drawable.coin_selected);
@@ -84,7 +113,6 @@ public class Wallet extends AppCompatActivity {
                     adapter.selectedPositions.clear();
                     coinsSelected.clear();
                     for (int i=0; i<coinsNum; i++) {
-
                         View viewItem = gridview.getChildAt(i);
                         if (viewItem != null) {
                             viewItem.setBackgroundResource(R.drawable.coin_not_selected);

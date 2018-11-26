@@ -116,7 +116,8 @@ public class SignUpActivity extends Activity {
                             FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
                             FirebaseUser user = firebaseAuth.getCurrentUser();
 
-                            db.collection("users").document(user.getUid()).set(new User(email, password));
+                            db.collection("users").document(user.getUid()).set(new User(email, password, 0.0));
+                            db.collection("users").document(user.getUid()).update("provider", "");
 
                             startActivity(new Intent(getApplicationContext(),UsernameActivity.class));
                             finish();
