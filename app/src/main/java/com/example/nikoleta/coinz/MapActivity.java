@@ -88,7 +88,11 @@ public class MapActivity extends AppCompatActivity
     static com.mapbox.mapboxsdk.annotations.Icon icon_dollar;
     static com.mapbox.mapboxsdk.annotations.Icon icon_shilling;
 
+    static double rateDOLR, rateQUID, ratePENY, rateSHIL;
+
     static int fileDownloaded = 0;
+
+    public List<Feature> walletFeatureList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -195,7 +199,7 @@ public class MapActivity extends AppCompatActivity
     }
 
     @NonNull
-    private String readStream(InputStream stream)
+    public static String readStream(InputStream stream)
             throws IOException {
         // Read input from stream, build result as a string
         StringBuilder sb = new StringBuilder();
@@ -290,6 +294,23 @@ public class MapActivity extends AppCompatActivity
                 if (distance (user_latitude, user_longitude, marker_latitude, marker_longitude) <= 25) {
                     mapChange = true;
                     map.removeMarker(marker);
+
+                    String valueCurrency = marker.getTitle();
+                    String id = marker.getSnippet();
+                    String currency = valueCurrency.substring(valueCurrency.length() - 4);
+                    String valueStr = valueCurrency.replace( " " + currency, "");
+                    double value = Double.parseDouble(valueStr);
+                    Coin coin = new Coin(currency, value, id);
+                    Wallet.coins.add(coin);
+
+                    LatLng pos = marker.getPosition();
+                    Point p = Point.fromLngLat(pos.getLongitude(), pos.getLatitude());
+                    Geometry g = (Geometry) p;
+                    Feature f = Feature.fromGeometry(g);
+                    f.addStringProperty("id", marker.getSnippet());
+                    f.addStringProperty("currency", currency);
+                    f.addStringProperty("value", valueStr);
+                    walletFeatureList.add(f);
                 }
             }
         }
@@ -392,13 +413,21 @@ public class MapActivity extends AppCompatActivity
                 Point p = Point.fromLngLat(pos.getLongitude(), pos.getLatitude());
                 Geometry g = (Geometry) p;
                 Feature f = Feature.fromGeometry(g);
-                f.addStringProperty("value", marker.getSnippet());
-                f.addStringProperty("currency", marker.getTitle());
+                f.addStringProperty("id", marker.getSnippet());
+                String valueCurrency = marker.getTitle();
+                String currency = valueCurrency.substring(valueCurrency.length() - 4);
+                String value = valueCurrency.replace( " " + currency, "");
+                f.addStringProperty("currency", currency);
+                f.addStringProperty("value", value);
                 featuresList.add(f);
             }
             FeatureCollection fc = FeatureCollection.fromFeatures(featuresList);
             String geoJsonString = fc.toJson().substring(1);
-            DownloadCompleteRunner.writeFile(DownloadCompleteRunner.ratesStr + geoJsonString);
+            DownloadCompleteRunner.writeFile(DownloadCompleteRunner.ratesStr + geoJsonString, "coinzmap.geojson");
+
+            FeatureCollection fcWallet = FeatureCollection.fromFeatures(walletFeatureList);
+            String geoJsonWallet = fcWallet.toJson();
+            DownloadCompleteRunner.writeFile(geoJsonWallet, "wallet.geojson");
         }
 
         mapView.onStop();

@@ -22,7 +22,17 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.gson.JsonObject;
+import com.mapbox.geojson.Feature;
+import com.mapbox.geojson.FeatureCollection;
+import com.mapbox.geojson.Geometry;
+import com.mapbox.geojson.Point;
+import com.mapbox.mapboxsdk.annotations.MarkerOptions;
+import com.mapbox.mapboxsdk.geometry.LatLng;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,12 +42,50 @@ import java.util.List;
 public class Wallet extends AppCompatActivity {
     static final String[] ITEM_LIST = new String[] { "QUID", "SHIL",
             "PENY", "DOLR" };
+    static List<Coin> coins = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_wallet);
-        Coin[] coinsArr = {new Coin("QUID", 5.22, "sdfaf"), new Coin("DOLR", 6.86, "shsfhsj"), new Coin("PENY", 4.9, "sfsfsf"), new Coin("SHIL", 3.3333333333, "setqtqt"), new Coin("QUID", 5.22, "sdfhchf"), new Coin("DOLR", 6.86, "sfchfchhsfhsj"), new Coin("PENY", 4.9, "sfghkgjsfsf"), new Coin("SHIL", 3.3333333333, "setqfjuftuitqt"), new Coin("QUID", 5.22, "sddydyfaf"), new Coin("DOLR", 6.86, "shsypypfhsj"), new Coin("PENY", 4.9, "sfsfwwwsf"), new Coin("SHIL", 3.3333333333, "setsssqtqt"), new Coin("QUID", 5.22, "dry"), new Coin("DOLR", 6.86, "shsftutuirhsj"), new Coin("PENY", 4.9, "sfsfsuuuf"), new Coin("SHIL", 3.3333333333, "sedrysywytqtqt")};
-        List<Coin> coins = Arrays.asList(coinsArr);
+        //Coin[] coinsArr = {new Coin("QUID", 5.22, "sdfaf"), new Coin("DOLR", 6.86, "shsfhsj"), new Coin("PENY", 4.9, "sfsfsf"), new Coin("SHIL", 3.3333333333, "setqtqt"), new Coin("QUID", 5.22, "sdfhchf"), new Coin("DOLR", 6.86, "sfchfchhsfhsj"), new Coin("PENY", 4.9, "sfghkgjsfsf"), new Coin("SHIL", 3.3333333333, "setqfjuftuitqt"), new Coin("QUID", 5.22, "sddydyfaf"), new Coin("DOLR", 6.86, "shsypypfhsj"), new Coin("PENY", 4.9, "sfsfwwwsf"), new Coin("SHIL", 3.3333333333, "setsssqtqt"), new Coin("QUID", 5.22, "dry"), new Coin("DOLR", 6.86, "shsftutuirhsj"), new Coin("PENY", 4.9, "sfsfsuuuf"), new Coin("SHIL", 3.3333333333, "sedrysywytqtqt")};
+        //List<Coin> coins = Arrays.asList(coinsArr);
+        String walletString = "";
+        if (coins.isEmpty()) {
+            try {
+                FileInputStream fis = openFileInput("wallet.geojson");
+                walletString = MapActivity.readStream(fis);
+                FeatureCollection fc = FeatureCollection.fromJson(walletString);
+
+                List<Feature> features_list = fc.features();
+
+                assert features_list != null;
+                for (int i = 0; i < features_list.size(); i++) {
+                    Feature feature = features_list.get(i);
+                    Geometry g = feature.geometry();
+                    assert g != null;
+                    if (g.type().equals("Point")) {
+                        JsonObject j = feature.properties();
+                        assert j != null;
+                        String currency = j.get("currency").toString().replaceAll("\"", "");
+                        String id = j.get("id").toString().replaceAll("\"", "");
+                        String valueStr = j.get("value").toString().replaceAll("\"", "");
+                        double value = Double.parseDouble(valueStr);
+                        Coin coin = new Coin(currency, value, id);
+                        coins.add(coin);
+                    }
+
+                }
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+
+
+
         List<Coin> coinsSelected = new ArrayList<>();
 
         GridView gridview = (GridView) findViewById(R.id.gridview);
@@ -47,7 +95,19 @@ public class Wallet extends AppCompatActivity {
         int coinsNum = coins.size();
         double totalMoney = 0;
         for (Coin coin : coins) {
-            totalMoney = totalMoney + coin.getValue();
+            String currency = coin.getCurrency();
+            double rate=0;
+            switch(currency) {
+                case "QUID": rate = MapActivity.rateQUID;
+                    break;
+                case "DOLR": rate = MapActivity.rateDOLR;
+                    break;
+                case "PENY": rate = MapActivity.ratePENY;
+                    break;
+                case "SHIL": rate = MapActivity.rateSHIL;
+                    break;
+            }
+            totalMoney = totalMoney + coin.getValue() * rate;
         }
         walletSummary.setText(String.format("Coins: \n%d\n\nTotal:\n%.2f GOLD", coinsNum, totalMoney));
 
@@ -67,7 +127,19 @@ public class Wallet extends AppCompatActivity {
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         double moneyBank=0.0;
                         for (Coin coin : coinsSelected) {
-                            moneyBank = moneyBank + coin.getValue();
+                            String currency = coin.getCurrency();
+                            double rate=0;
+                            switch(currency) {
+                                case "QUID": rate = MapActivity.rateQUID;
+                                    break;
+                                case "DOLR": rate = MapActivity.rateDOLR;
+                                    break;
+                                case "PENY": rate = MapActivity.ratePENY;
+                                    break;
+                                case "SHIL": rate = MapActivity.rateSHIL;
+                                    break;
+                            }
+                            moneyBank = moneyBank + coin.getValue() * rate;
                         }
                         double money;
                         if (!task.getResult().contains("money")) {

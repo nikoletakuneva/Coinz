@@ -7,6 +7,10 @@ import com.mapbox.geojson.Geometry;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.geometry.LatLng;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.util.List;
@@ -18,10 +22,10 @@ public class DownloadCompleteRunner {
     private static String result;
     static String ratesStr = "";
 
-    public static void writeFile(String str) {
+    public static void writeFile(String str, String fileName) {
         // Add the geojson text into a file in internal storage
         try {
-            FileOutputStream file = getApplicationContext().openFileOutput("coinzmap.geojson", MODE_PRIVATE);
+            FileOutputStream file = getApplicationContext().openFileOutput(fileName, MODE_PRIVATE);
             OutputStreamWriter outputWriter=new OutputStreamWriter(file);
             outputWriter.write(str);
             outputWriter.close();
@@ -38,7 +42,18 @@ public class DownloadCompleteRunner {
         FeatureCollection fc = FeatureCollection.fromJson(result);
 
         if (MapActivity.fileDownloaded == 0){
-            writeFile(result);
+            writeFile(result, "coinzmap.geojson");
+        }
+
+        try {
+            JSONObject jsonObject = new JSONObject(result);
+            JSONObject rates = jsonObject.getJSONObject("rates");
+            MapActivity.rateDOLR = rates.getDouble("DOLR");
+            MapActivity.ratePENY = rates.getDouble("PENY");
+            MapActivity.rateQUID = rates.getDouble("QUID");
+            MapActivity.rateSHIL = rates.getDouble("SHIL");
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
 
         List<Feature> features_list = fc.features();
