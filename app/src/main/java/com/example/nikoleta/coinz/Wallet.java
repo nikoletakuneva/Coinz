@@ -30,6 +30,9 @@ import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -43,6 +46,8 @@ public class Wallet extends AppCompatActivity {
     static final String[] ITEM_LIST = new String[] { "QUID", "SHIL",
             "PENY", "DOLR" };
     static List<Coin> coins = new ArrayList<>();
+    public List<Feature> features_list;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,28 +59,29 @@ public class Wallet extends AppCompatActivity {
             try {
                 FileInputStream fis = openFileInput("wallet.geojson");
                 walletString = MapActivity.readStream(fis);
-                FeatureCollection fc = FeatureCollection.fromJson(walletString);
 
-                List<Feature> features_list = fc.features();
+                if (walletString != "") {
+                    FeatureCollection fc = FeatureCollection.fromJson(walletString);
 
-                assert features_list != null;
-                for (int i = 0; i < features_list.size(); i++) {
-                    Feature feature = features_list.get(i);
-                    Geometry g = feature.geometry();
-                    assert g != null;
-                    if (g.type().equals("Point")) {
-                        JsonObject j = feature.properties();
-                        assert j != null;
-                        String currency = j.get("currency").toString().replaceAll("\"", "");
-                        String id = j.get("id").toString().replaceAll("\"", "");
-                        String valueStr = j.get("value").toString().replaceAll("\"", "");
-                        double value = Double.parseDouble(valueStr);
-                        Coin coin = new Coin(currency, value, id);
-                        coins.add(coin);
+                    features_list = fc.features();
+
+                    assert features_list != null;
+                    for (int i = 0; i < features_list.size(); i++) {
+                        Feature feature = features_list.get(i);
+                        Geometry g = feature.geometry();
+                        assert g != null;
+                        if (g.type().equals("Point")) {
+                            JsonObject j = feature.properties();
+                            assert j != null;
+                            String currency = j.get("currency").toString().replaceAll("\"", "");
+                            String id = j.get("id").toString().replaceAll("\"", "");
+                            String valueStr = j.get("value").toString().replaceAll("\"", "");
+                            double value = Double.parseDouble(valueStr);
+                            Coin coin = new Coin(currency, value, id);
+                            coins.add(coin);
+                        }
                     }
-
                 }
-
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             } catch (IOException e) {
@@ -83,10 +89,8 @@ public class Wallet extends AppCompatActivity {
             }
         }
 
-
-
-
         List<Coin> coinsSelected = new ArrayList<>();
+        List<Feature> featuresSelected = new ArrayList<>();
 
         GridView gridview = (GridView) findViewById(R.id.gridview);
         ImageAdapter adapter = new ImageAdapter(getApplicationContext(), coins);
@@ -116,11 +120,34 @@ public class Wallet extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
+//                for (int position: adapter.selectedPositions) {
+//                    View view = gridview.getChildAt(position);
+//                    //gridview.removeView(gridview.getChildAt(position));
+//                    gridview.removeViewInLayout(view);
+//
+//                }
+                //gridview.removeViewsInLayout();
+                coins.removeAll(coinsSelected);
+                adapter.selectedPositions.clear();
+                coinsSelected.clear();
+                adapter.notifyDataSetChanged();
+
+
+                features_list.removeAll(featuresSelected);
+                DownloadCompleteRunner.writeFile(coins.toString(), "wallet.geojson");
+                updateWalletFile();
+
+                //JSONArray j = new JSONArray().
+//                FeatureCollection fcWallet = FeatureCollection.fromFeatures(walletFeatureList);
+//                String geoJsonWallet = fcWallet.toJson();
+                //DownloadCompleteRunner.writeFile(geoJsonWallet, "wallet.geojson");
+                //DownloadCompleteRunner.writeFile("", "wallet.geojson");
+                //adapter.notifyDataSetChanged();
+
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
                 FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
                 FirebaseUser user = firebaseAuth.getCurrentUser();
 
-                String id = user.getUid();
                 DocumentReference docRef = db.collection("users").document(user.getUid());
                 docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
@@ -166,6 +193,8 @@ public class Wallet extends AppCompatActivity {
                     adapter.selectedPositions.clear();
                     coinsSelected.clear();
                     coinsSelected.addAll(coins);
+                    featuresSelected.clear();
+                    featuresSelected.addAll(features_list);
                     for (int i=0; i<coinsNum; i++) {
                         adapter.selectedPositions.add(i);
                         View viewItem = gridview.getChildAt(i);
@@ -184,6 +213,7 @@ public class Wallet extends AppCompatActivity {
                 if (coinsSelected.size() != 0) {
                     adapter.selectedPositions.clear();
                     coinsSelected.clear();
+                    featuresSelected.clear();
                     for (int i=0; i<coinsNum; i++) {
                         View viewItem = gridview.getChildAt(i);
                         if (viewItem != null) {
@@ -204,13 +234,24 @@ public class Wallet extends AppCompatActivity {
                     v.setBackgroundResource(R.drawable.coin_not_selected);
                     Coin c = ImageAdapter.coins.get(position);
                     coinsSelected.remove(c);
+
+
+                    featuresSelected.remove(c);
                 } else {
                     adapter.selectedPositions.add(position);
                     v.setBackgroundResource(R.drawable.coin_selected);
                     Coin c = ImageAdapter.coins.get(position);
                     coinsSelected.add(c);
+
+
+                    featuresSelected.add(features_list.get(position));
                 }
             }
         });
+    }
+    private void updateWalletFile() {
+        FeatureCollection fcWallet = FeatureCollection.fromFeatures(features_list);
+        String geoJsonWallet = fcWallet.toJson();
+        DownloadCompleteRunner.writeFile(geoJsonWallet, "wallet.geojson");
     }
 }
