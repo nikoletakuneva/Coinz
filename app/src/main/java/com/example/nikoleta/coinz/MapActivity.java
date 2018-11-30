@@ -311,8 +311,13 @@ public class MapActivity extends AppCompatActivity
                     f.addStringProperty("currency", currency);
                     f.addStringProperty("value", valueStr);
                     walletFeatureList.add(f);
+                    Wallet.features_list.add(f);
+                    FeatureCollection fcWallet = FeatureCollection.fromFeatures(walletFeatureList);
+                    String geoJsonWallet = fcWallet.toJson();
+                    DownloadCompleteRunner.writeFile(geoJsonWallet, "wallet.geojson");
                 }
             }
+
         }
     }
 
@@ -425,9 +430,9 @@ public class MapActivity extends AppCompatActivity
             String geoJsonString = fc.toJson().substring(1);
             DownloadCompleteRunner.writeFile(DownloadCompleteRunner.ratesStr + geoJsonString, "coinzmap.geojson");
 
-            FeatureCollection fcWallet = FeatureCollection.fromFeatures(walletFeatureList);
-            String geoJsonWallet = fcWallet.toJson();
-            DownloadCompleteRunner.writeFile(geoJsonWallet, "wallet.geojson");
+//            FeatureCollection fcWallet = FeatureCollection.fromFeatures(walletFeatureList);
+//            String geoJsonWallet = fcWallet.toJson();
+//            DownloadCompleteRunner.writeFile(geoJsonWallet, "wallet.geojson");
         }
 
         mapView.onStop();

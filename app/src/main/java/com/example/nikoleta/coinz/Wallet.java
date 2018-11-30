@@ -31,6 +31,7 @@ import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.FileInputStream;
@@ -46,7 +47,8 @@ public class Wallet extends AppCompatActivity {
     static final String[] ITEM_LIST = new String[] { "QUID", "SHIL",
             "PENY", "DOLR" };
     static List<Coin> coins = new ArrayList<>();
-    public List<Feature> features_list;
+    static List<Feature> features_list = new ArrayList<>();
+    boolean first = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,12 +57,13 @@ public class Wallet extends AppCompatActivity {
         //Coin[] coinsArr = {new Coin("QUID", 5.22, "sdfaf"), new Coin("DOLR", 6.86, "shsfhsj"), new Coin("PENY", 4.9, "sfsfsf"), new Coin("SHIL", 3.3333333333, "setqtqt"), new Coin("QUID", 5.22, "sdfhchf"), new Coin("DOLR", 6.86, "sfchfchhsfhsj"), new Coin("PENY", 4.9, "sfghkgjsfsf"), new Coin("SHIL", 3.3333333333, "setqfjuftuitqt"), new Coin("QUID", 5.22, "sddydyfaf"), new Coin("DOLR", 6.86, "shsypypfhsj"), new Coin("PENY", 4.9, "sfsfwwwsf"), new Coin("SHIL", 3.3333333333, "setsssqtqt"), new Coin("QUID", 5.22, "dry"), new Coin("DOLR", 6.86, "shsftutuirhsj"), new Coin("PENY", 4.9, "sfsfsuuuf"), new Coin("SHIL", 3.3333333333, "sedrysywytqtqt")};
         //List<Coin> coins = Arrays.asList(coinsArr);
         String walletString = "";
-        if (coins.isEmpty()) {
+        if(coins.isEmpty()) {
             try {
                 FileInputStream fis = openFileInput("wallet.geojson");
                 walletString = MapActivity.readStream(fis);
+                JSONObject jsonObject = new JSONObject(walletString);
 
-                if (walletString != "") {
+                if (!jsonObject.get("features").toString().equals("[]")) {
                     FeatureCollection fc = FeatureCollection.fromJson(walletString);
 
                     features_list = fc.features();
@@ -85,6 +88,8 @@ public class Wallet extends AppCompatActivity {
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             } catch (IOException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
@@ -128,13 +133,13 @@ public class Wallet extends AppCompatActivity {
 //                }
                 //gridview.removeViewsInLayout();
                 coins.removeAll(coinsSelected);
+                adapter.notifyDataSetChanged();
+                features_list.removeAll(featuresSelected);
                 adapter.selectedPositions.clear();
                 coinsSelected.clear();
-                adapter.notifyDataSetChanged();
+                featuresSelected.clear();
 
 
-                features_list.removeAll(featuresSelected);
-                DownloadCompleteRunner.writeFile(coins.toString(), "wallet.geojson");
                 updateWalletFile();
 
                 //JSONArray j = new JSONArray().
@@ -234,16 +239,12 @@ public class Wallet extends AppCompatActivity {
                     v.setBackgroundResource(R.drawable.coin_not_selected);
                     Coin c = ImageAdapter.coins.get(position);
                     coinsSelected.remove(c);
-
-
                     featuresSelected.remove(c);
                 } else {
                     adapter.selectedPositions.add(position);
                     v.setBackgroundResource(R.drawable.coin_selected);
                     Coin c = ImageAdapter.coins.get(position);
                     coinsSelected.add(c);
-
-
                     featuresSelected.add(features_list.get(position));
                 }
             }
