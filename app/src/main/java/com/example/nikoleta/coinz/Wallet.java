@@ -48,7 +48,6 @@ public class Wallet extends AppCompatActivity {
             "PENY", "DOLR" };
     static List<Coin> coins = new ArrayList<>();
     static List<Feature> features_list = new ArrayList<>();
-    boolean first = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,7 +117,28 @@ public class Wallet extends AppCompatActivity {
             }
             totalMoney = totalMoney + coin.getValue() * rate;
         }
-        walletSummary.setText(String.format("Coins: \n%d\n\nTotal:\n%.2f GOLD", coinsNum, totalMoney));
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+        FirebaseUser user = firebaseAuth.getCurrentUser();
+
+        DocumentReference docRef = db.collection("users").document(user.getUid());
+        double finalTotalMoney = totalMoney;
+        int coinsLeft;
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                int coinsLeft;
+                if (!task.getResult().contains("coinsLeft")) {
+                    coinsLeft=0;
+                }
+                else {
+                    coinsLeft = Integer.parseInt(task.getResult().get("coinsLeft").toString());
+                }
+                walletSummary.setText(String.format("Coins: %d\n\nCoins left: %d\n\nTotal:\n%.2f GOLD", coinsNum, coinsLeft, finalTotalMoney));
+            }
+        });
+
 
         Button btnBank = (Button) findViewById(R.id.send_to_bank);
         btnBank.setOnClickListener(new View.OnClickListener(){
@@ -132,15 +152,7 @@ public class Wallet extends AppCompatActivity {
 //
 //                }
                 //gridview.removeViewsInLayout();
-                coins.removeAll(coinsSelected);
-                adapter.notifyDataSetChanged();
-                features_list.removeAll(featuresSelected);
-                adapter.selectedPositions.clear();
-                coinsSelected.clear();
-                featuresSelected.clear();
 
-
-                updateWalletFile();
 
                 //JSONArray j = new JSONArray().
 //                FeatureCollection fcWallet = FeatureCollection.fromFeatures(walletFeatureList);
@@ -157,36 +169,76 @@ public class Wallet extends AppCompatActivity {
                 docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        double moneyBank=0.0;
-                        for (Coin coin : coinsSelected) {
-                            String currency = coin.getCurrency();
-                            double rate=0;
-                            switch(currency) {
-                                case "QUID": rate = MapActivity.rateQUID;
-                                    break;
-                                case "DOLR": rate = MapActivity.rateDOLR;
-                                    break;
-                                case "PENY": rate = MapActivity.ratePENY;
-                                    break;
-                                case "SHIL": rate = MapActivity.rateSHIL;
-                                    break;
-                            }
-                            moneyBank = moneyBank + coin.getValue() * rate;
-                        }
-                        double money;
-                        if (!task.getResult().contains("money")) {
-                            money = 0.0;
+                        int coinsLeft;
+                        if (!task.getResult().contains("coinsLeft")) {
+                            coinsLeft = 0;
                         }
                         else {
-                            money = Double.parseDouble(task.getResult().get("money").toString());
+                            coinsLeft = Integer.parseInt(task.getResult().get("coinsLeft").toString());
                         }
-                        db.collection("users").document(user.getUid()).update("money", moneyBank + money);
-                        Toast.makeText(Wallet.this, "Money in Bank: " + String.format("%.2f", moneyBank + money),  Toast.LENGTH_SHORT).show();
+                        if (coinsSelected.size() > coinsLeft) {
+                            Toast.makeText(Wallet.this, String.format("You have a daily limit of 25 coins to send to Bank. Coins left for transfer: %d", coinsLeft),  Toast.LENGTH_SHORT).show();
+                        }
+                        else {
+                            coinsLeft = coinsLeft - coinsSelected.size();
+                            db.collection("users").document(user.getUid()).update("coinsLeft", coinsLeft);
+
+                            double moneyBank=0.0;
+                            for (Coin coin : coinsSelected) {
+                                String currency = coin.getCurrency();
+                                double rate=0;
+                                switch(currency) {
+                                    case "QUID": rate = MapActivity.rateQUID;
+                                        break;
+                                    case "DOLR": rate = MapActivity.rateDOLR;
+                                        break;
+                                    case "PENY": rate = MapActivity.ratePENY;
+                                        break;
+                                    case "SHIL": rate = MapActivity.rateSHIL;
+                                        break;
+                                }
+                                moneyBank = moneyBank + coin.getValue() * rate;
+                            }
+                            double money;
+                            if (!task.getResult().contains("money")) {
+                                money = 0.0;
+                            }
+                            else {
+                                money = Double.parseDouble(task.getResult().get("money").toString());
+                            }
+                            db.collection("users").document(user.getUid()).update("money", moneyBank + money);
+                            Toast.makeText(Wallet.this, "Money in Bank: " + String.format("%.2f", moneyBank + money),  Toast.LENGTH_SHORT).show();
+
+                            coins.removeAll(coinsSelected);
+                            adapter.notifyDataSetChanged();
+                            features_list.removeAll(featuresSelected);
+                            adapter.selectedPositions.clear();
+                            coinsSelected.clear();
+                            featuresSelected.clear();
+
+                            int coinsNum = coins.size();
+                            double totalMoney = 0;
+                            for (Coin coin : coins) {
+                                String currency = coin.getCurrency();
+                                double rate=0;
+                                switch(currency) {
+                                    case "QUID": rate = MapActivity.rateQUID;
+                                        break;
+                                    case "DOLR": rate = MapActivity.rateDOLR;
+                                        break;
+                                    case "PENY": rate = MapActivity.ratePENY;
+                                        break;
+                                    case "SHIL": rate = MapActivity.rateSHIL;
+                                        break;
+                                }
+                                totalMoney = totalMoney + coin.getValue() * rate;
+                            }
+                            walletSummary.setText(String.format("Coins: %d\n\nCoins left: %d\n\nTotal:\n%.2f GOLD", coinsNum, coinsLeft, totalMoney));
+
+                            updateWalletFile();
+                        }
                     }
                 });
-
-
-
             }
         });
 

@@ -411,29 +411,7 @@ public class MapActivity extends AppCompatActivity
         // Apply the edits!
         editor.apply();
 
-        if (mapChange == true) {
-            List<Feature> featuresList = new ArrayList<>();
-            for (Marker marker: map.getMarkers()) {
-                LatLng pos = marker.getPosition();
-                Point p = Point.fromLngLat(pos.getLongitude(), pos.getLatitude());
-                Geometry g = (Geometry) p;
-                Feature f = Feature.fromGeometry(g);
-                f.addStringProperty("id", marker.getSnippet());
-                String valueCurrency = marker.getTitle();
-                String currency = valueCurrency.substring(valueCurrency.length() - 4);
-                String value = valueCurrency.replace( " " + currency, "");
-                f.addStringProperty("currency", currency);
-                f.addStringProperty("value", value);
-                featuresList.add(f);
-            }
-            FeatureCollection fc = FeatureCollection.fromFeatures(featuresList);
-            String geoJsonString = fc.toJson().substring(1);
-            DownloadCompleteRunner.writeFile(DownloadCompleteRunner.ratesStr + geoJsonString, "coinzmap.geojson");
-
-//            FeatureCollection fcWallet = FeatureCollection.fromFeatures(walletFeatureList);
-//            String geoJsonWallet = fcWallet.toJson();
-//            DownloadCompleteRunner.writeFile(geoJsonWallet, "wallet.geojson");
-        }
+        updateFile();
 
         mapView.onStop();
     }
@@ -447,6 +425,7 @@ public class MapActivity extends AppCompatActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        updateFile();
         mapView.onDestroy();
     }
 
@@ -465,6 +444,28 @@ public class MapActivity extends AppCompatActivity
             super.onBackPressed();
             startActivity(new Intent(getApplicationContext(), ProfileScreen.class));
             finish();
+        }
+    }
+
+    public void updateFile() {
+        if (mapChange == true) {
+            List<Feature> featuresList = new ArrayList<>();
+            for (Marker marker : map.getMarkers()) {
+                LatLng pos = marker.getPosition();
+                Point p = Point.fromLngLat(pos.getLongitude(), pos.getLatitude());
+                Geometry g = (Geometry) p;
+                Feature f = Feature.fromGeometry(g);
+                f.addStringProperty("id", marker.getSnippet());
+                String valueCurrency = marker.getTitle();
+                String currency = valueCurrency.substring(valueCurrency.length() - 4);
+                String value = valueCurrency.replace(" " + currency, "");
+                f.addStringProperty("currency", currency);
+                f.addStringProperty("value", value);
+                featuresList.add(f);
+            }
+            FeatureCollection fc = FeatureCollection.fromFeatures(featuresList);
+            String geoJsonString = fc.toJson().substring(1);
+            DownloadCompleteRunner.writeFile(DownloadCompleteRunner.ratesStr + geoJsonString, "coinzmap.geojson");
         }
     }
 

@@ -118,6 +118,7 @@ public class SignUpActivity extends Activity {
 
                             db.collection("users").document(user.getUid()).set(new User(email, password, 0.0));
                             db.collection("users").document(user.getUid()).update("provider", "");
+                            db.collection("users").document(user.getUid()).update("coinsLeft", "25");
 
                             startActivity(new Intent(getApplicationContext(),UsernameActivity.class));
                             finish();
