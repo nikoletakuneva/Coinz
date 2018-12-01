@@ -167,6 +167,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                                 docRef.set(new User(account.getEmail(), "", 0.0));
                                 docRef.update("provider", "Google");
                                 docRef.update("coinsLeft", "25");
+                                docRef.update("username", account.getDisplayName());
                             }
                         }
                     });

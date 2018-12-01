@@ -179,6 +179,11 @@ public class MapActivity extends AppCompatActivity
                 //Download the GeoJSON file
                 DownloadFileTask task = new DownloadFileTask();
                 String url = "http://homepages.inf.ed.ac.uk/stg/coinz/" + todayDate + "/coinzmap.geojson";
+                DownloadCompleteRunner.writeFile("", "wallet.geojson");
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                db.collection("users").document(user.getUid()).update("coinsLeft", 25);
                 downloadDate = todayDate;
                 task.execute(url);
             }
@@ -506,7 +511,7 @@ public class MapActivity extends AppCompatActivity
         } else if (id == R.id.nav_boost) {
 
         } else if (id == R.id.nav_gift) {
-
+            startActivity(new Intent(getApplicationContext(), SendCoinsActivity.class));
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
