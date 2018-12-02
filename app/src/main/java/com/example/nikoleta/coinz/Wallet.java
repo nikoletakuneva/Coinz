@@ -144,23 +144,6 @@ public class Wallet extends AppCompatActivity {
         btnBank.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-
-//                for (int position: adapter.selectedPositions) {
-//                    View view = gridview.getChildAt(position);
-//                    //gridview.removeView(gridview.getChildAt(position));
-//                    gridview.removeViewInLayout(view);
-//
-//                }
-                //gridview.removeViewsInLayout();
-
-
-                //JSONArray j = new JSONArray().
-//                FeatureCollection fcWallet = FeatureCollection.fromFeatures(walletFeatureList);
-//                String geoJsonWallet = fcWallet.toJson();
-                //DownloadCompleteRunner.writeFile(geoJsonWallet, "wallet.geojson");
-                //DownloadCompleteRunner.writeFile("", "wallet.geojson");
-                //adapter.notifyDataSetChanged();
-
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
                 FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
                 FirebaseUser user = firebaseAuth.getCurrentUser();

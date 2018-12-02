@@ -34,11 +34,20 @@
         <item name="colorControlNormal">@color/primary</item>
         <item name="colorControlActivated">@color/primary</item>
         <item name="colorControlHighlight">@color/primary</item>
+    </style>
 
+    <style name="SearchTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorControlNormal">#aba4a4</item>
+        <item name="colorControlActivated">#aba4a4</item>
+        <item name="colorControlHighlight">#aba4a4</item>
     </style>
 
     <style name="HintColour" parent="@android:style/TextAppearance">
         <item name="android:textColor">@color/hint</item>
+    </style>
+
+    <style name="SearchColour" parent="@android:style/TextAppearance">
+        <item name="android:textColor">#aba4a4</item>
     </style>
 
 
