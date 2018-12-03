@@ -42,6 +42,8 @@ public class ProfileScreen extends AppCompatActivity {
         FirebaseUser user  = firebaseAuth.getCurrentUser()  ;
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         String username = user.getDisplayName();
+
+        // If the user is not signed in with Google
         if (username == null || username.equals("")) {
             DocumentReference docRef = db.collection("users").document(user.getUid());
             docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -62,6 +64,8 @@ public class ProfileScreen extends AppCompatActivity {
                 }
             });
         }
+
+        // If the user is signed in with Google.
         else {
             textView.setText("Hello " + username + "!");
         }

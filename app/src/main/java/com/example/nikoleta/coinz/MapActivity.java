@@ -307,6 +307,7 @@ public class MapActivity extends AppCompatActivity
                     double value = Double.parseDouble(valueStr);
                     Coin coin = new Coin(currency, value, id);
                     Wallet.coins.add(coin);
+                    SelectCoinGiftsActivity.coins.add(coin);
 
                     LatLng pos = marker.getPosition();
                     Point p = Point.fromLngLat(pos.getLongitude(), pos.getLatitude());
@@ -317,6 +318,7 @@ public class MapActivity extends AppCompatActivity
                     f.addStringProperty("value", valueStr);
                     walletFeatureList.add(f);
                     Wallet.features_list.add(f);
+                    SelectCoinGiftsActivity.features_list.add(f);
                     FeatureCollection fcWallet = FeatureCollection.fromFeatures(walletFeatureList);
                     String geoJsonWallet = fcWallet.toJson();
                     DownloadCompleteRunner.writeFile(geoJsonWallet, "wallet.geojson");

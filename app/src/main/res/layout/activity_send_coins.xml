@@ -54,6 +54,8 @@
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="5dp"
+
+        android:focusableInTouchMode="true"
         app:hintTextAppearance="@style/SearchColour"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -65,8 +67,10 @@
             android:id="@+id/search_text"
             android:layout_width="match_parent"
             android:layout_height="45dp"
-            android:cursorVisible="false"
+            android:cursorVisible="true"
             android:hint="Search"
+            android:inputType="text"
+            android:imeOptions="actionSearch"
             android:theme="@style/SearchTheme" />
 
     </android.support.design.widget.TextInputLayout>

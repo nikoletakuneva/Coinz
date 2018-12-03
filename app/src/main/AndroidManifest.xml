@@ -62,6 +62,8 @@
             android:name=".SendCoinsActivity"
             android:theme="@style/Dialog_Full_Width" />
         <activity android:name=".ListView" />
+        <activity android:name=".SelectCoinGiftsActivity"
+            android:theme="@style/Dialog_Full_Width" />
     </application>
 
 </manifest>
