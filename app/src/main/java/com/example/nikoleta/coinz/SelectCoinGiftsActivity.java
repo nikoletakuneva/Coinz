@@ -104,7 +104,7 @@ public class SelectCoinGiftsActivity extends AppCompatActivity {
                 adapter.notifyDataSetChanged();
                 adapter.selectedPositions.clear();
 
-                Query searchUsers = db.collection("users").whereEqualTo("username", SendCoinsActivity.selectedUser);
+                Query searchUsers = db.collection("users").whereEqualTo("username", SelectUserActivity.selectedUser);
                 Task<QuerySnapshot> task = searchUsers.get();
                 task.addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -118,13 +118,32 @@ public class SelectCoinGiftsActivity extends AppCompatActivity {
                             List<String> gifts = new ArrayList<>();
                             List<String> notifications = new ArrayList<>();
 
+                            double giftsSum=0;
                             for (Coin c: coinsSelected) {
+                                String currency = c.getCurrency();
+                                double rate = 0;
+                                switch (currency) {
+                                    case "QUID":
+                                        rate = MapActivity.rateQUID;
+                                        break;
+                                    case "DOLR":
+                                        rate = MapActivity.rateDOLR;
+                                        break;
+                                    case "PENY":
+                                        rate = MapActivity.ratePENY;
+                                        break;
+                                    case "SHIL":
+                                        rate = MapActivity.rateSHIL;
+                                        break;
+                                }
+                                giftsSum = giftsSum + c.getValue()*rate;
                                 String coin = c.getValue() + " " + c.getCurrency() + " "  + c.getId();
                                 gifts.add(coin);
                             }
 
                             for (DocumentSnapshot document : documentsList) {
                                 DocumentReference docRef = db.collection("users").document(document.getId());
+                                double finalGiftsSum = giftsSum;
                                 docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                     @Override
                                     public void onComplete(@NonNull Task<DocumentSnapshot> taskGifts) {
@@ -149,10 +168,12 @@ public class SelectCoinGiftsActivity extends AppCompatActivity {
                                                     DocumentSnapshot documentCurrUser = taskGetUsername.getResult();
                                                     if (documentCurrUser.exists()) {
                                                         String username = documentCurrUser.getString("username");
-                                                        String notification = username + " sent you a gift.";
+                                                        //String notification = username + " sent you a gift.";
+                                                        String notification = String.format(username + " sent you %.2f GOLD!", finalGiftsSum);
                                                         notifications.add(notification);
 
                                                         db.collection("users").document(document.getId()).update("notifications", notifications);
+                                                        db.collection("users").document(document.getId()).update("newNotifications", true);
                                                     }
                                                     else {
                                                         Log.d("SelectCoinGiftsActivity", "No such document");

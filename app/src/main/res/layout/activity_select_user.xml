@@ -54,7 +54,6 @@
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="5dp"
-
         android:focusableInTouchMode="true"
         app:hintTextAppearance="@style/SearchColour"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -97,7 +96,6 @@
         android:layout_marginTop="8dp"
         android:gravity="center"
         android:text="Select user:"
-        android:textAlignment="textStart"
         android:textAppearance="@style/HintColour"
         android:textColor="#aba4a4"
         android:textSize="14sp"

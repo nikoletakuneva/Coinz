@@ -59,10 +59,13 @@
             android:name=".Bank"
             android:theme="@style/Dialog_Full_Width" />
         <activity
-            android:name=".SendCoinsActivity"
+            android:name=".SelectUserActivity"
             android:theme="@style/Dialog_Full_Width" />
-        <activity android:name=".ListView" />
-        <activity android:name=".SelectCoinGiftsActivity"
+        <activity
+            android:name=".SelectCoinGiftsActivity"
+            android:theme="@style/Dialog_Full_Width" />
+        <activity
+            android:name=".NotificationsActivity"
             android:theme="@style/Dialog_Full_Width" />
     </application>
 

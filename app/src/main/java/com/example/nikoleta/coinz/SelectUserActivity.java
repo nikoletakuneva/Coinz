@@ -5,10 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.app.Activity;
 import android.support.annotation.NonNull;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.KeyEvent;
-import android.view.Menu;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -29,19 +26,16 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import okhttp3.internal.cache.DiskLruCache;
-
-public class SendCoinsActivity extends Activity
+public class SelectUserActivity extends Activity
 {
     ListView usernameList;
     static String selectedUser;
 
     @Override   protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_send_coins);
+        setContentView(R.layout.activity_select_user);
         usernameList = (ListView)findViewById(R.id.listView);
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
@@ -113,7 +107,7 @@ public class SendCoinsActivity extends Activity
                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                 List<DocumentSnapshot> documentsList = task.getResult().getDocuments();
                                 if(documentsList.isEmpty()) {
-                                    Toast.makeText(SendCoinsActivity.this, "No such user.",
+                                    Toast.makeText(SelectUserActivity.this, "No such user.",
                                             Toast.LENGTH_SHORT).show();
                                 }
                                 else {

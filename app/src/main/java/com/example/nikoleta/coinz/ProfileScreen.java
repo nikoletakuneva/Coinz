@@ -116,6 +116,12 @@ public class ProfileScreen extends AppCompatActivity {
                 startActivity(new Intent(getApplicationContext(), GameRulesActivity.class));
             }
         });
+        btnExit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
     }
 
     @Override

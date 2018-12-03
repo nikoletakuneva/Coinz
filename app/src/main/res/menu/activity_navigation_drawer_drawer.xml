@@ -24,6 +24,10 @@
 
     <group android:id="@+id/communicate"
         android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_notifications"
+            android:icon="@drawable/no_notifications"
+            android:title="Notifications" />
             <item
                 android:id="@+id/nav_gift"
                 android:icon="@drawable/giftbox"
@@ -33,7 +37,7 @@
     <group android:id="@+id/menu_bottom"
         android:checkableBehavior="single">
             <item
-                android:id="@+id/logout"
+                android:id="@+id/nav_logout"
                 android:icon="@drawable/logout"
                 android:title="Log out" />
     </group>

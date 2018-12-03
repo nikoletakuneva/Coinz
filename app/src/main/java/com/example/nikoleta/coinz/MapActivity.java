@@ -485,6 +485,22 @@ public class MapActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.navigation_drawer, menu);
+        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+        FirebaseUser user = firebaseAuth.getCurrentUser();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference docRef = db.collection("users").document(user.getUid());
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.getResult().contains("newNotifications")) {
+                    if (task.getResult().getBoolean("newNotifications") == true) {
+                        NavigationView navigationView = (NavigationView)findViewById(R.id.nav_view);
+                        navigationView.getMenu().getItem(4).setIconTintMode(null).setIcon(R.drawable.notifications);
+                    }
+                }
+            }
+        });
+
         return true;
     }
 
@@ -518,7 +534,18 @@ public class MapActivity extends AppCompatActivity
         } else if (id == R.id.nav_boost) {
 
         } else if (id == R.id.nav_gift) {
-            startActivity(new Intent(getApplicationContext(), SendCoinsActivity.class));
+            startActivity(new Intent(getApplicationContext(), SelectUserActivity.class));
+        }
+        else if (id == R.id.nav_notifications) {
+            NavigationView navigationView = (NavigationView)findViewById(R.id.nav_view);
+            navigationView.getMenu().getItem(4).setIconTintMode(null).setIcon(R.drawable.no_notifications);
+            startActivity(new Intent(getApplicationContext(), NotificationsActivity.class));
+        }
+        else if (id == R.id.nav_logout) {
+            FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();;
+            firebaseAuth.signOut();
+            startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+            finish();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
