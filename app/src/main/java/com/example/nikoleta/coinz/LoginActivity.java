@@ -167,13 +167,17 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                                 docRef.set(new User(account.getEmail(), "", 0.0));
                                 docRef.update("provider", "Google");
                                 docRef.update("coinsLeft", "25");
-                                docRef.update("username", account.getDisplayName());
+                                //docRef.update("username", account.getDisplayName());
+                                startActivity(new Intent(getApplicationContext(), UsernameActivity.class));
+                            }
+                            else {
+                                startActivity(new Intent(getApplicationContext(),ProfileScreen.class));
+                                finish();
                             }
                         }
                     });
 
-                    startActivity(new Intent(getApplicationContext(),ProfileScreen.class));
-                    finish();
+
                 }
                 else{
                     Toast.makeText(getApplicationContext(),"Auth Error",Toast.LENGTH_SHORT).show();
