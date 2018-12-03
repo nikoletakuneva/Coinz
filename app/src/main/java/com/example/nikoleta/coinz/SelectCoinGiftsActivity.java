@@ -1,21 +1,15 @@
 package com.example.nikoleta.coinz;
 
-import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.GridView;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -25,84 +19,58 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.gson.JsonObject;
-import com.mapbox.geojson.Feature;
-import com.mapbox.geojson.FeatureCollection;
-import com.mapbox.geojson.Geometry;
-import com.mapbox.geojson.Point;
-import com.mapbox.mapboxsdk.annotations.MarkerOptions;
-import com.mapbox.mapboxsdk.geometry.LatLng;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 public class SelectCoinGiftsActivity extends AppCompatActivity {
-    static List<Coin> coins = new ArrayList<>();
-    static List<Feature> features_list = new ArrayList<>();
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_coin_gifts);
 
-        String walletString = "";
-        if (coins.isEmpty()) {
-            try {
-                FileInputStream fis = openFileInput("wallet.geojson");
-                walletString = MapActivity.readStream(fis);
-                JSONObject jsonObject = new JSONObject(walletString);
+        if(MapActivity.walletCoins.isEmpty()) {
+            FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+            FirebaseUser user  = firebaseAuth.getCurrentUser()  ;
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-                if (!jsonObject.get("features").toString().equals("[]")) {
-                    FeatureCollection fc = FeatureCollection.fromJson(walletString);
+            List<String> walletCoinsList = new ArrayList<>();
 
-                    features_list = fc.features();
-
-                    assert features_list != null;
-                    for (int i = 0; i < features_list.size(); i++) {
-                        Feature feature = features_list.get(i);
-                        Geometry g = feature.geometry();
-                        assert g != null;
-                        if (g.type().equals("Point")) {
-                            JsonObject j = feature.properties();
-                            assert j != null;
-                            String currency = j.get("currency").toString().replaceAll("\"", "");
-                            String id = j.get("id").toString().replaceAll("\"", "");
-                            String valueStr = j.get("value").toString().replaceAll("\"", "");
-                            double value = Double.parseDouble(valueStr);
-                            Coin coin = new Coin(currency, value, id);
-                            coins.add(coin);
+            DocumentReference docRef = db.collection("users").document(user.getUid());
+            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.getResult().contains("wallet")) {
+                        String[] prevCoins = task.getResult().get("wallet").toString().replaceAll("\\[", "").replaceAll("\\]", "").split(", ");
+                        if (!prevCoins[0].equals("")) {
+                            for (String c: prevCoins) {
+                                walletCoinsList.add(c);
+                                String[] coinProperties = c.split(" ");
+                                Coin coin = new Coin(coinProperties[0], Double.parseDouble(coinProperties[1]), coinProperties[2]);
+                                MapActivity.walletCoins.add(coin);
+                            }
                         }
                     }
+                    walletView();
                 }
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+            });
         }
+        else {
+            walletView();
+        }
+    }
 
+    private void walletView() {
         List<Coin> coinsSelected = new ArrayList<>();
-        List<Feature> featuresSelected = new ArrayList<>();
 
         GridView gridview = (GridView) findViewById(R.id.gridview);
-        ImageAdapter adapter = new ImageAdapter(getApplicationContext(), coins);
+        ImageAdapter adapter = new ImageAdapter(getApplicationContext(), MapActivity.walletCoins);
         gridview.setAdapter(adapter);
         TextView walletSummary = (TextView) findViewById(R.id.coins);
-        int coinsNum = coins.size();
+        int coinsNum = MapActivity.walletCoins.size();
         double totalMoney = 0;
-        for (Coin coin : coins) {
+        for (Coin coin : MapActivity.walletCoins) {
             String currency = coin.getCurrency();
             double rate = 0;
             switch (currency) {
@@ -132,9 +100,8 @@ public class SelectCoinGiftsActivity extends AppCompatActivity {
         sendGift.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                coins.removeAll(coinsSelected);
+                MapActivity.walletCoins.removeAll(coinsSelected);
                 adapter.notifyDataSetChanged();
-                features_list.removeAll(featuresSelected);
                 adapter.selectedPositions.clear();
 
                 Query searchUsers = db.collection("users").whereEqualTo("username", SendCoinsActivity.selectedUser);
@@ -168,13 +135,9 @@ public class SelectCoinGiftsActivity extends AppCompatActivity {
 
                                             if (taskGifts.getResult().contains("notifications")) {
                                                 String[] prevNotifications = taskGifts.getResult().get("notifications").toString().replaceAll("\\[", "").replaceAll("\\]", "").split(", ");
-                                                for (String n: prevNotifications) {
-                                                    notifications.add(n);
-                                                }
+                                                Collections.addAll(notifications, prevNotifications);
                                             }
-                                            for (String gift: prevGifts) {
-                                                gifts.add(gift);
-                                            }
+                                            gifts.addAll(Arrays.asList(prevGifts));
                                         }
                                         db.collection("users").document(document.getId()).update("gifts", gifts);
 
@@ -205,11 +168,10 @@ public class SelectCoinGiftsActivity extends AppCompatActivity {
                             }
 
                             coinsSelected.clear();
-                            featuresSelected.clear();
 
-                            int coinsNum = coins.size();
+                            int coinsNum = MapActivity.walletCoins.size();
                             double totalMoney = 0;
-                            for (Coin coin : coins) {
+                            for (Coin coin : MapActivity.walletCoins) {
                                 String currency = coin.getCurrency();
                                 double rate = 0;
                                 switch (currency) {
@@ -230,7 +192,7 @@ public class SelectCoinGiftsActivity extends AppCompatActivity {
                             }
 
                             walletSummary.setText(String.format("Coins: %d\n\nTotal:\n%.2f GOLD", coinsNum, totalMoney));
-                            updateWalletFile();
+                            updateWallet();
 
                         }
                     }
@@ -247,9 +209,8 @@ public class SelectCoinGiftsActivity extends AppCompatActivity {
                 if (coinsSelected.size() != coinsNum) {
                     adapter.selectedPositions.clear();
                     coinsSelected.clear();
-                    coinsSelected.addAll(coins);
-                    featuresSelected.clear();
-                    featuresSelected.addAll(features_list);
+                    coinsSelected.addAll(MapActivity.walletCoins);
+
                     for (int i = 0; i < coinsNum; i++) {
                         adapter.selectedPositions.add(i);
                         View viewItem = gridview.getChildAt(i);
@@ -268,7 +229,7 @@ public class SelectCoinGiftsActivity extends AppCompatActivity {
                 if (coinsSelected.size() != 0) {
                     adapter.selectedPositions.clear();
                     coinsSelected.clear();
-                    featuresSelected.clear();
+
                     for (int i = 0; i < coinsNum; i++) {
                         View viewItem = gridview.getChildAt(i);
                         if (viewItem != null) {
@@ -289,21 +250,30 @@ public class SelectCoinGiftsActivity extends AppCompatActivity {
                     v.setBackgroundResource(R.drawable.coin_not_selected);
                     Coin c = ImageAdapter.coins.get(position);
                     coinsSelected.remove(c);
-                    featuresSelected.remove(c);
-                } else {
+                }
+                else {
                     adapter.selectedPositions.add(position);
                     v.setBackgroundResource(R.drawable.coin_selected);
                     Coin c = ImageAdapter.coins.get(position);
                     coinsSelected.add(c);
-                    featuresSelected.add(features_list.get(position));
                 }
             }
         });
     }
 
-    private void updateWalletFile() {
-        FeatureCollection fcWallet = FeatureCollection.fromFeatures(features_list);
-        String geoJsonWallet = fcWallet.toJson();
-        DownloadCompleteRunner.writeFile(geoJsonWallet, "wallet.geojson");
+    private void updateWallet() {
+        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+        FirebaseUser user  = firebaseAuth.getCurrentUser()  ;
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        List<String> walletCoinsList = new ArrayList<>();
+
+        for (Coin coin: MapActivity.walletCoins) {
+            String coinStr = coin.getValue() + " " + coin.getCurrency() + " "  + coin.getId();
+            walletCoinsList.add(coinStr);
+        }
+
+        db.collection("users").document(user.getUid()).update("wallet", walletCoinsList);
+
     }
 }

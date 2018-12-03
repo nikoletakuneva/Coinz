@@ -41,34 +41,25 @@ public class ProfileScreen extends AppCompatActivity {
         firebaseAuth = FirebaseAuth.getInstance();
         FirebaseUser user  = firebaseAuth.getCurrentUser()  ;
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        String username = user.getDisplayName();
 
-        // If the user is not signed in with Google
-        if (username == null || username.equals("")) {
-            DocumentReference docRef = db.collection("users").document(user.getUid());
-            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if (document.exists()) {
-                            Log.d("ProfileScreen", "DocumentSnapshot data: " + document.getData());
-                            String username = document.getString("username");
-                            textView.setText("Hello " + username + "!");
-                        } else {
-                            Log.d("ProfileScreen", "No such document");
-                        }
+        DocumentReference docRef = db.collection("users").document(user.getUid());
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        Log.d("ProfileScreen", "DocumentSnapshot data: " + document.getData());
+                        String username = document.getString("username");
+                        textView.setText("Hello " + username + "!");
                     } else {
-                        Log.d("ProfileScreen", "get failed with ", task.getException());
+                        Log.d("ProfileScreen", "No such document");
                     }
+                } else {
+                    Log.d("ProfileScreen", "get failed with ", task.getException());
                 }
-            });
-        }
-
-        // If the user is signed in with Google.
-        else {
-            textView.setText("Hello " + username + "!");
-        }
+            }
+        });
 
         authStateListener = new FirebaseAuth.AuthStateListener() {
             @Override

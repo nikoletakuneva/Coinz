@@ -32,6 +32,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.gson.JsonObject;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineListener;
 import com.mapbox.android.core.location.LocationEnginePriority;
@@ -54,6 +55,8 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin;
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.CameraMode;
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode;
+
+import org.json.JSONException;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -92,7 +95,7 @@ public class MapActivity extends AppCompatActivity
 
     static int fileDownloaded = 0;
 
-    public List<Feature> walletFeatureList = new ArrayList<>();
+    static List<Coin> walletCoins = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,30 +120,25 @@ public class MapActivity extends AppCompatActivity
 
         TextView usernameText = headerView.findViewById(R.id.usernameView);
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        String username = currUser.getDisplayName();
-        if (username == null || username.equals("")) {
-            DocumentReference docRef = db.collection("users").document(currUser.getUid());
-            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if (document.exists()) {
-                            Log.d("ProfileScreen", "DocumentSnapshot data: " + document.getData());
-                            String username = document.getString("username");
-                            usernameText.setText(username);
-                        } else {
-                            Log.d("ProfileScreen", "No such document");
-                        }
+
+        DocumentReference docRef = db.collection("users").document(currUser.getUid());
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        Log.d("ProfileScreen", "DocumentSnapshot data: " + document.getData());
+                        String username = document.getString("username");
+                        usernameText.setText(username);
                     } else {
-                        Log.d("ProfileScreen", "get failed with ", task.getException());
+                        Log.d("ProfileScreen", "No such document");
                     }
+                } else {
+                    Log.d("ProfileScreen", "get failed with ", task.getException());
                 }
-            });
-        }
-        else {
-            usernameText.setText(username);
-        }
+            }
+        });
 
         navigationView.setNavigationItemSelectedListener(this);
 
@@ -179,10 +177,10 @@ public class MapActivity extends AppCompatActivity
                 //Download the GeoJSON file
                 DownloadFileTask task = new DownloadFileTask();
                 String url = "http://homepages.inf.ed.ac.uk/stg/coinz/" + todayDate + "/coinzmap.geojson";
-                DownloadCompleteRunner.writeFile("", "wallet.geojson");
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
                 FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
                 FirebaseUser user = firebaseAuth.getCurrentUser();
+                db.collection("users").document(user.getUid()).update("wallet", new ArrayList<String>());
                 db.collection("users").document(user.getUid()).update("coinsLeft", 25);
                 downloadDate = todayDate;
                 task.execute(url);
@@ -284,7 +282,8 @@ public class MapActivity extends AppCompatActivity
     public void onLocationChanged(Location location) {
         if (location == null) {
             Log.d(tag, "[onLocationChanged] location is null");
-        } else {
+        }
+        else {
             Log.d(tag, "[onLocationChanged] location is not null");
             originLocation = location;
             setCameraPosition(location);
@@ -306,22 +305,28 @@ public class MapActivity extends AppCompatActivity
                     String valueStr = valueCurrency.replace( " " + currency, "");
                     double value = Double.parseDouble(valueStr);
                     Coin coin = new Coin(currency, value, id);
-                    Wallet.coins.add(coin);
-                    SelectCoinGiftsActivity.coins.add(coin);
+                    walletCoins.add(coin);
 
-                    LatLng pos = marker.getPosition();
-                    Point p = Point.fromLngLat(pos.getLongitude(), pos.getLatitude());
-                    Geometry g = (Geometry) p;
-                    Feature f = Feature.fromGeometry(g);
-                    f.addStringProperty("id", marker.getSnippet());
-                    f.addStringProperty("currency", currency);
-                    f.addStringProperty("value", valueStr);
-                    walletFeatureList.add(f);
-                    Wallet.features_list.add(f);
-                    SelectCoinGiftsActivity.features_list.add(f);
-                    FeatureCollection fcWallet = FeatureCollection.fromFeatures(walletFeatureList);
-                    String geoJsonWallet = fcWallet.toJson();
-                    DownloadCompleteRunner.writeFile(geoJsonWallet, "wallet.geojson");
+                    FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+                    FirebaseUser user  = firebaseAuth.getCurrentUser()  ;
+                    FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+                    List<String> walletCoinsList = new ArrayList<>();
+
+                    String coinStr = coin.getValue() + " " + coin.getCurrency() + " "  + coin.getId();
+                    walletCoinsList.add(coinStr);
+
+                    DocumentReference docRef = db.collection("users").document(user.getUid());
+                    docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if (task.getResult().contains("wallet")) {
+                                String[] prevCoins = task.getResult().get("wallet").toString().replaceAll("\\[", "").replaceAll("\\]", "").split(", ");
+                                walletCoinsList.addAll(Arrays.asList(prevCoins));
+                            }
+                            db.collection("users").document(user.getUid()).update("wallet", walletCoinsList);
+                        }
+                    });
                 }
             }
 
