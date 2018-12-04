@@ -532,7 +532,7 @@ public class MapActivity extends AppCompatActivity
         } else if (id == R.id.nav_bank) {
             startActivity(new Intent(getApplicationContext(), Bank.class));
         } else if (id == R.id.nav_boost) {
-
+            startActivity(new Intent(getApplicationContext(), BoostersActivity.class));
         } else if (id == R.id.nav_gift) {
             startActivity(new Intent(getApplicationContext(), SelectUserActivity.class));
         }

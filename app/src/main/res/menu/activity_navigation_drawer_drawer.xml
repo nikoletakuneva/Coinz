@@ -11,7 +11,7 @@
         <item
             android:id="@+id/nav_piggybank"
             android:icon="@drawable/piggybank_icon"
-            android:title="Piggy bank" />
+            android:title="Piggybank" />
         <item
             android:id="@+id/nav_bank"
             android:icon="@drawable/bank_icon"
@@ -19,7 +19,7 @@
         <item
             android:id="@+id/nav_boost"
             android:icon="@drawable/growth"
-            android:title="Boosts" />
+            android:title="Boosters" />
     </group>
 
     <group android:id="@+id/communicate"

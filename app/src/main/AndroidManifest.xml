@@ -70,6 +70,7 @@
         <activity
             android:name=".Piggybank"
             android:theme="@style/Dialog_Full_Width" />
+        <activity android:name=".BoostersActivity"></activity>
     </application>
 
 </manifest>
