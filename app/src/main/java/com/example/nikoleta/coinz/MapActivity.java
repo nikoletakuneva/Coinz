@@ -383,6 +383,15 @@ public class MapActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
+        mapView.onStart();
+
+        if(locationEngine != null){
+
+            try {
+                locationEngine.requestLocationUpdates();
+            } catch(SecurityException ignored) {}
+            locationEngine.addLocationEngineListener(this);
+        }
 
         // Restore preferences
         SharedPreferences settings = getSharedPreferences(preferencesFile,
@@ -392,7 +401,7 @@ public class MapActivity extends AppCompatActivity
 
         Log.d(tag, "[onStart] Recalled lastDownloadDate is ’" + downloadDate + "’");
 
-        mapView.onStart();
+
     }
 
     @SuppressLint("LogNotTimber")
@@ -412,6 +421,12 @@ public class MapActivity extends AppCompatActivity
     @Override
     public void onStop() {
         super.onStop();
+        mapView.onStop();
+
+        if(locationEngine != null){
+            locationEngine.removeLocationEngineListener(this);
+            locationEngine.removeLocationUpdates();
+        }
 
         Log.d(tag, "[onStop] Storing lastDownloadDate of " + downloadDate);
         // All objects are from android.context.Context
@@ -425,7 +440,7 @@ public class MapActivity extends AppCompatActivity
 
         updateFile();
 
-        mapView.onStop();
+
     }
 
     @Override
