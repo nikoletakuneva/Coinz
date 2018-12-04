@@ -23,24 +23,23 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.484"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/gift"
+        app:layout_constraintTop_toBottomOf="@+id/piggybank"
         app:layout_constraintVertical_bias="0.09" />
 
     <ImageView
-        android:id="@+id/gift"
-        android:layout_width="151dp"
-        android:layout_height="140dp"
-        android:layout_marginEnd="8dp"
+        android:id="@+id/piggybank"
+        android:layout_width="174dp"
+        android:layout_height="173dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="28dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.87"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/gift" />
+        app:srcCompat="@drawable/piggybank_image" />
 
     <Button
-        android:id="@+id/send_coins_gift"
+        android:id="@+id/send_bank"
         android:layout_width="140dp"
         android:layout_height="41dp"
         android:layout_marginBottom="12dp"
@@ -48,7 +47,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:background="@color/color"
-        android:text="Send Gift"
+        android:text="Send to Bank"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
@@ -70,11 +69,11 @@
         android:textSize="19sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/gridview"
-        app:layout_constraintEnd_toStartOf="@+id/gift"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintEnd_toStartOf="@+id/piggybank"
+        app:layout_constraintHorizontal_bias="0.732"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.703" />
+        app:layout_constraintVertical_bias="0.607" />
 
     <Button
         android:id="@+id/select_all"
@@ -88,7 +87,7 @@
         app:layout_constraintVertical_bias="0.5"
         app:layout_constraintTop_toBottomOf="@+id/gridview"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/send_coins_gift"
+        app:layout_constraintEnd_toStartOf="@+id/send_bank"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
@@ -100,7 +99,7 @@
         app:layout_constraintVertical_bias="0.4"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/send_coins_gift"
+        app:layout_constraintStart_toEndOf="@+id/send_bank"
         app:layout_constraintTop_toBottomOf="@+id/gridview" />
 
 </android.support.constraint.ConstraintLayout>

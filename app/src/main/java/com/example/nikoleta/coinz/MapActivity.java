@@ -528,7 +528,7 @@ public class MapActivity extends AppCompatActivity
         if (id == R.id.nav_wallet) {
             startActivity(new Intent(getApplicationContext(), Wallet.class));
         } else if (id == R.id.nav_piggybank) {
-
+            startActivity(new Intent(getApplicationContext(), Piggybank.class));
         } else if (id == R.id.nav_bank) {
             startActivity(new Intent(getApplicationContext(), Bank.class));
         } else if (id == R.id.nav_boost) {

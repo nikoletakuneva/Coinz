@@ -67,6 +67,9 @@
         <activity
             android:name=".NotificationsActivity"
             android:theme="@style/Dialog_Full_Width" />
+        <activity
+            android:name=".Piggybank"
+            android:theme="@style/Dialog_Full_Width" />
     </application>
 
 </manifest>

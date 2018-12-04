@@ -47,7 +47,7 @@ public class SelectCoinGiftsActivity extends AppCompatActivity {
                             for (String c: prevCoins) {
                                 walletCoinsList.add(c);
                                 String[] coinProperties = c.split(" ");
-                                Coin coin = new Coin(coinProperties[0], Double.parseDouble(coinProperties[1]), coinProperties[2]);
+                                Coin coin = new Coin(coinProperties[1], Double.parseDouble(coinProperties[0]), coinProperties[2]);
                                 MapActivity.walletCoins.add(coin);
                             }
                         }
@@ -147,43 +147,43 @@ public class SelectCoinGiftsActivity extends AppCompatActivity {
                                 docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                     @Override
                                     public void onComplete(@NonNull Task<DocumentSnapshot> taskGifts) {
-                                        int coinsLeft;
                                         if (taskGifts.getResult().contains("gifts")) {
                                             // Remove the square brackets from the String of previous gifts stored in the database and split it into coins
                                             String[] prevGifts = taskGifts.getResult().get("gifts").toString().replaceAll("\\[", "").replaceAll("\\]", "").split(", ");
-
-                                            if (taskGifts.getResult().contains("notifications")) {
-                                                String[] prevNotifications = taskGifts.getResult().get("notifications").toString().replaceAll("\\[", "").replaceAll("\\]", "").split(", ");
-                                                Collections.addAll(notifications, prevNotifications);
-                                            }
                                             gifts.addAll(Arrays.asList(prevGifts));
-                                        }
-                                        db.collection("users").document(document.getId()).update("gifts", gifts);
 
-                                        DocumentReference docRefUsername = db.collection("users").document(user.getUid());
-                                        docRefUsername.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<DocumentSnapshot> taskGetUsername) {
-                                                if (taskGetUsername.isSuccessful()) {
-                                                    DocumentSnapshot documentCurrUser = taskGetUsername.getResult();
-                                                    if (documentCurrUser.exists()) {
-                                                        String username = documentCurrUser.getString("username");
-                                                        //String notification = username + " sent you a gift.";
-                                                        String notification = String.format(username + " sent you %.2f GOLD!", finalGiftsSum);
-                                                        notifications.add(notification);
+                                            DocumentReference docRefUsername = db.collection("users").document(user.getUid());
+                                            docRefUsername.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<DocumentSnapshot> taskGetUsername) {
+                                                    if (taskGetUsername.isSuccessful()) {
+                                                        DocumentSnapshot documentCurrUser = taskGetUsername.getResult();
+                                                        if (documentCurrUser.exists()) {
+                                                            String username = documentCurrUser.getString("username");
+                                                            //String notification = username + " sent you a gift.";
+                                                            String notification = String.format(username + " sent you %.2f GOLD! You can view the gift in your Piggybank.", finalGiftsSum);
+                                                            notifications.add(notification);
 
-                                                        db.collection("users").document(document.getId()).update("notifications", notifications);
-                                                        db.collection("users").document(document.getId()).update("newNotifications", true);
+                                                            if (taskGifts.getResult().contains("notifications")) {
+                                                                String[] prevNotifications = taskGifts.getResult().get("notifications").toString().replaceAll("\\[", "").replaceAll("\\]", "").split(", ");
+                                                                Collections.addAll(notifications, prevNotifications);
+                                                            }
+
+                                                            db.collection("users").document(document.getId()).update("notifications", notifications);
+                                                            db.collection("users").document(document.getId()).update("newNotifications", true);
+                                                        }
+                                                        else {
+                                                            Log.d("SelectCoinGiftsActivity", "No such document");
+                                                        }
                                                     }
                                                     else {
-                                                        Log.d("SelectCoinGiftsActivity", "No such document");
+                                                        Log.d("SelectCoinGiftsActivity", "get failed with ", taskGetUsername.getException());
                                                     }
                                                 }
-                                                else {
-                                                    Log.d("SelectCoinGiftsActivity", "get failed with ", taskGetUsername.getException());
-                                                }
-                                            }
-                                        });
+                                            });
+                                        }
+                                        db.collection("users").document(document.getId()).update("gifts", gifts);
+                                        Toast.makeText(SelectCoinGiftsActivity.this, "Gift sent to user.", Toast.LENGTH_SHORT).show();
                                     }
                                 });
                             }
