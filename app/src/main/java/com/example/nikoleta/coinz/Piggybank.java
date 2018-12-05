@@ -29,7 +29,7 @@ public class Piggybank extends AppCompatActivity {
     HashMap<String, Coin> stealCollection = new HashMap<>();
     HashMap<String, Coin> shieldCollection = new HashMap<>();
     final String[] MODES = {"NONE", "MAGNET", "STEAL", "SHIELD"};
-    final double MAGNET_COST = 200.00;
+    final double MAGNET_COST = 50.00;
     final double STEAL_COST = 500.00;
     final double SHIELD_COST = 800.00;
     String MODE = "NONE";

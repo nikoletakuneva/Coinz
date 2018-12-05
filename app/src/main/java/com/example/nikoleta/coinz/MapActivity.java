@@ -72,6 +72,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 public class MapActivity extends AppCompatActivity
@@ -99,12 +100,22 @@ public class MapActivity extends AppCompatActivity
 
     static List<Coin> walletCoins = new ArrayList<>();
 
+    static TextView quid_rate;
+    static TextView dolr_rate;
+    static TextView peny_rate;
+    static TextView shil_rate;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_navigation_drawer);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        quid_rate = (TextView) findViewById(R.id.quid_rate);
+        dolr_rate = (TextView) findViewById(R.id.dolr_rate);
+        peny_rate = (TextView) findViewById(R.id.peny_rate);
+        shil_rate = (TextView) findViewById(R.id.shil_rate);
 
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         FirebaseUser currUser = firebaseAuth.getCurrentUser();
@@ -186,6 +197,12 @@ public class MapActivity extends AppCompatActivity
                 //Load map from the downloaded file
                 String geoJsonString = "";
                 fileDownloaded = 1;
+
+                quid_rate.setText(String.format("%.2f GOLD", rateQUID));
+                dolr_rate.setText(String.format("%.2f GOLD", rateDOLR));
+                peny_rate.setText(String.format("%.2f GOLD", ratePENY));
+                shil_rate.setText(String.format("%.2f GOLD", rateSHIL));
+
                 try {
                     FileInputStream fis = openFileInput("coinzmap.geojson");
                     geoJsonString = readStream(fis);
@@ -288,44 +305,65 @@ public class MapActivity extends AppCompatActivity
             double user_latitude = location.getLatitude();
             double user_longitude = location.getLongitude();
 
-            for (Marker marker: map.getMarkers()) {
-                LatLng latlng = marker.getPosition();
-                double marker_latitude = latlng.getLatitude();
-                double marker_longitude = latlng.getLongitude();
-                if (distance (user_latitude, user_longitude, marker_latitude, marker_longitude) <= 25) {
-                    mapChange = true;
-                    map.removeMarker(marker);
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+            FirebaseUser user = firebaseAuth.getCurrentUser();
 
-                    String valueCurrency = marker.getTitle();
-                    String id = marker.getSnippet();
-                    String currency = valueCurrency.substring(valueCurrency.length() - 4);
-                    String valueStr = valueCurrency.replace( " " + currency, "");
-                    double value = Double.parseDouble(valueStr);
-                    Coin coin = new Coin(currency, value, id);
-                    walletCoins.add(coin);
+            if (user != null) {
+                DocumentReference docRef = db.collection("users").document(user.getUid());
 
-                    FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-                    FirebaseUser user  = firebaseAuth.getCurrentUser()  ;
-                    FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-                    List<String> walletCoinsList = new ArrayList<>();
-
-                    String coinStr = coin.getValue() + " " + coin.getCurrency() + " "  + coin.getId();
-                    walletCoinsList.add(coinStr);
-
-                    DocumentReference docRef = db.collection("users").document(user.getUid());
-                    docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            if (task.getResult().contains("wallet")) {
-                                String[] prevCoins = task.getResult().get("wallet").toString().replaceAll("\\[", "").replaceAll("\\]", "").split(", ");
-                                walletCoinsList.addAll(Arrays.asList(prevCoins));
+                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        int collectionDistance = 25;
+                        // Everytime we are trying to access current user's information we are checking whether the user is not null in case they've logged out
+                        if (firebaseAuth.getCurrentUser()!= null && Objects.requireNonNull(task.getResult()).contains("magnetMode")) {
+                            if (firebaseAuth.getCurrentUser()!= null && Objects.requireNonNull(task).getResult().getBoolean("magnetMode")) {
+                                collectionDistance = 75;
                             }
-                            db.collection("users").document(user.getUid()).update("wallet", walletCoinsList);
                         }
-                    });
-                }
+                        for (Marker marker: map.getMarkers()) {
+                            LatLng latlng = marker.getPosition();
+                            double marker_latitude = latlng.getLatitude();
+                            double marker_longitude = latlng.getLongitude();
+                            if (distance (user_latitude, user_longitude, marker_latitude, marker_longitude) <= collectionDistance) {
+                                mapChange = true;
+                                map.removeMarker(marker);
+
+                                String valueCurrency = marker.getTitle();
+                                String id = marker.getSnippet();
+                                String currency = valueCurrency.substring(valueCurrency.length() - 4);
+                                String valueStr = valueCurrency.replace( " " + currency, "");
+                                double value = Double.parseDouble(valueStr);
+                                Coin coin = new Coin(currency, value, id);
+                                walletCoins.add(coin);
+
+                                FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+                                FirebaseUser user  = firebaseAuth.getCurrentUser()  ;
+                                FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+                                List<String> walletCoinsList = new ArrayList<>();
+
+                                String coinStr = coin.getValue() + " " + coin.getCurrency() + " "  + coin.getId();
+                                walletCoinsList.add(coinStr);
+
+                                DocumentReference docRef = db.collection("users").document(user.getUid());
+                                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                        if (firebaseAuth.getCurrentUser()!= null && task.getResult().contains("wallet")) {
+                                            String[] prevCoins = task.getResult().get("wallet").toString().replaceAll("\\[", "").replaceAll("\\]", "").split(", ");
+                                            walletCoinsList.addAll(Arrays.asList(prevCoins));
+                                        }
+                                        db.collection("users").document(user.getUid()).update("wallet", walletCoinsList);
+                                    }
+                                });
+                            }
+                        }
+                    }
+                });
             }
+
 
         }
     }

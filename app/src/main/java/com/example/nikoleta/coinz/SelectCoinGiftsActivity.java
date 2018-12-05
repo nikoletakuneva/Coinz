@@ -120,23 +120,7 @@ public class SelectCoinGiftsActivity extends AppCompatActivity {
 
                             double giftsSum=0;
                             for (Coin c: coinsSelected) {
-                                String currency = c.getCurrency();
-                                double rate = 0;
-                                switch (currency) {
-                                    case "QUID":
-                                        rate = MapActivity.rateQUID;
-                                        break;
-                                    case "DOLR":
-                                        rate = MapActivity.rateDOLR;
-                                        break;
-                                    case "PENY":
-                                        rate = MapActivity.ratePENY;
-                                        break;
-                                    case "SHIL":
-                                        rate = MapActivity.rateSHIL;
-                                        break;
-                                }
-                                giftsSum = giftsSum + c.getValue()*rate;
+                                giftsSum = giftsSum + c.getGOLDValue();
                                 String coin = c.getValue() + " " + c.getCurrency() + " "  + c.getId();
                                 gifts.add(coin);
                             }

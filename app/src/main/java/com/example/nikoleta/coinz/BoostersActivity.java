@@ -1,5 +1,6 @@
 package com.example.nikoleta.coinz;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -67,7 +68,28 @@ public class BoostersActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Locked.", Toast.LENGTH_SHORT).show();
                 }
                 else {
-                    Toast.makeText(getApplicationContext(), "Unlocked.", Toast.LENGTH_SHORT).show();
+                    FirebaseFirestore db = FirebaseFirestore.getInstance();
+                    FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+                    FirebaseUser user = firebaseAuth.getCurrentUser();
+
+                    DocumentReference docRef = db.collection("users").document(user.getUid());
+                    docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if (Objects.requireNonNull(task.getResult()).contains("magnetMode")) {
+                                if (task.getResult().getBoolean("magnetMode")) {
+                                    Toast.makeText(getApplicationContext(), "You are already using this Booster.", Toast.LENGTH_SHORT).show();
+                                }
+                                else {
+                                    startActivity(new Intent(getApplicationContext(), MagnetActivity.class));
+                                }
+                            }
+                            else {
+                                startActivity(new Intent(getApplicationContext(), MagnetActivity.class));
+                            }
+                        }
+                    });
+
                 }
             }
         });
@@ -76,7 +98,16 @@ public class BoostersActivity extends AppCompatActivity {
         btnSteal.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                Drawable drawable1 = btnSteal.getCompoundDrawables()[2];
+                Drawable drawable2 = getDrawable(R.drawable.locked);
+                Bitmap bitmap1 = ((BitmapDrawable)drawable1).getBitmap();
+                Bitmap bitmap2 = ((BitmapDrawable)drawable2).getBitmap();
+                if (bitmap1 == bitmap2){
+                    Toast.makeText(getApplicationContext(), "Locked.", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    startActivity(new Intent(getApplicationContext(), StealActivity.class));
+                }
             }
         });
 
@@ -84,7 +115,16 @@ public class BoostersActivity extends AppCompatActivity {
         btnShield.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                Drawable drawable1 = btnShield.getCompoundDrawables()[2];
+                Drawable drawable2 = getDrawable(R.drawable.locked);
+                Bitmap bitmap1 = ((BitmapDrawable)drawable1).getBitmap();
+                Bitmap bitmap2 = ((BitmapDrawable)drawable2).getBitmap();
+                if (bitmap1 == bitmap2){
+                    Toast.makeText(getApplicationContext(), "Locked.", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    startActivity(new Intent(getApplicationContext(), ShieldActivity.class));
+                }
             }
         });
 

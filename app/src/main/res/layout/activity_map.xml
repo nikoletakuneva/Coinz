@@ -48,4 +48,74 @@
         android:layout_marginTop="8dp"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <TextView
+        android:id="@+id/quid_rate"
+        android:layout_width="114dp"
+        android:layout_height="33dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:background="#96ffffff"
+        android:drawableLeft="@drawable/quid_small"
+        android:drawablePadding="10dp"
+        android:gravity="center_vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/appBarLayout3"
+        app:layout_constraintVertical_bias="0.751" />
+
+    <TextView
+        android:id="@+id/dolr_rate"
+        android:layout_width="114dp"
+        android:layout_height="33dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:background="#96ffffff"
+        android:drawableLeft="@drawable/dollar_small"
+        android:drawablePadding="10dp"
+        android:gravity="center_vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/quid_rate"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/peny_rate"
+        android:layout_width="114dp"
+        android:layout_height="33dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:background="#96ffffff"
+        android:drawableLeft="@drawable/penny_small"
+        android:drawablePadding="10dp"
+        android:gravity="center_vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dolr_rate"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/shil_rate"
+        android:layout_width="114dp"
+        android:layout_height="33dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:background="#96ffffff"
+        android:drawableLeft="@drawable/shilling_small"
+        android:drawablePadding="10dp"
+        android:gravity="center_vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/peny_rate"
+        app:layout_constraintVertical_bias="0.0" />
+
 </android.support.constraint.ConstraintLayout>
