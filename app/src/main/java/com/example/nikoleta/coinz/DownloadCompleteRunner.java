@@ -137,6 +137,8 @@ public class DownloadCompleteRunner {
                     db.collection("users").document(user.getUid()).update("shieldUnlocked", false);
                     db.collection("users").document(user.getUid()).update("magnetMode", false);
                     db.collection("users").document(user.getUid()).update("stealUsed", false);
+                    db.collection("users").document(user.getUid()).update("piggybankProtected", false);
+                    db.collection("users").document(user.getUid()).update("cantStealFrom", new ArrayList<String>());
                 }
             });
         }

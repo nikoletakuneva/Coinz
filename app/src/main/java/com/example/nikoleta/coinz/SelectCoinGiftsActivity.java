@@ -117,6 +117,7 @@ public class SelectCoinGiftsActivity extends AppCompatActivity {
                         else {
                             List<String> gifts = new ArrayList<>();
                             List<String> notifications = new ArrayList<>();
+                            List<String> users = new ArrayList<>();
 
                             double giftsSum=0;
                             for (Coin c: coinsSelected) {
@@ -162,6 +163,17 @@ public class SelectCoinGiftsActivity extends AppCompatActivity {
                                                             }
                                                             db.collection("users").document(document.getId()).update("notifications", notifications);
                                                             db.collection("users").document(document.getId()).update("newNotifications", true);
+
+                                                            users.add(username);
+                                                            if (taskGifts.getResult().contains("cantStealFrom")) {
+                                                                String[] prevUsers = taskGifts.getResult().get("cantStealFrom").toString().replaceAll("\\[", "").replaceAll("\\]", "").split(", ");
+                                                                for (String u: prevUsers) {
+                                                                    if (!u.equals("")) {
+                                                                        users.add(u);
+                                                                    }
+                                                                }
+                                                            }
+                                                            db.collection("users").document(document.getId()).update("cantStealFrom", users);
                                                         }
                                                         else {
                                                             Log.d("SelectCoinGiftsActivity", "No such document");

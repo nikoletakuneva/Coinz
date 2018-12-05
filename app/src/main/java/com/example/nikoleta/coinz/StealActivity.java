@@ -63,91 +63,109 @@ public class StealActivity extends AppCompatActivity {
                     docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<DocumentSnapshot> taskSteal) {
-                            if (taskSteal.getResult().contains("piggybank")) {
-                                // Steal the coin with highest value from the selected user
-                                String[] coins = taskSteal.getResult().get("piggybank").toString().replaceAll("\\[", "").replaceAll("\\]", "").split(", ");
-                                if (!coins[0].equals("")) {
-                                    double maxValue = 0.0;
-                                    double maxCoinValue = 0.0;
-                                    String maxCurrency = "";
-                                    String maxId = "";
-                                    for (int i=0; i<coins.length; i++) {
-                                        String c = coins[i];
-                                        if (!c.equals("")) {
-                                            String[] coinProperties = c.split(" ");
-                                            double rate = 0;
-                                            switch (coinProperties[1]) {
-                                                case "QUID":
-                                                    rate = MapActivity.rateQUID;
-                                                    break;
-                                                case "DOLR":
-                                                    rate = MapActivity.rateDOLR;
-                                                    break;
-                                                case "PENY":
-                                                    rate = MapActivity.ratePENY;
-                                                    break;
-                                                case "SHIL":
-                                                    rate = MapActivity.rateSHIL;
-                                                    break;
-                                            }
-                                            double value = Double.parseDouble(coinProperties[0]) * rate;
-                                            if (value > maxValue) {
-                                                maxValue = value;
-                                                maxCoinValue =  Double.parseDouble(coinProperties[0]);
-                                                maxCurrency = coinProperties[1];
-                                                maxId = coinProperties[2];
-                                            }
-                                        }
-                                    }
-                                    List<String> piggybankCoins = new ArrayList<>(Arrays.asList(coins));
-                                    String maxCoin = String.valueOf(maxCoinValue) + " " + maxCurrency + " " + maxId;
-                                    piggybankCoins.remove(maxCoin);
-                                    db.collection("users").document(userDocument.getId()).update("piggybank", piggybankCoins);
-
-                                    // Notify the robbed user a coin has been stolen
-                                    List<String> notifications = new ArrayList<>();
-                                    String notification = String.format("Someone stole a coin worth  %.2f GOLD from your piggybank!", maxValue);
-                                    notifications.add(notification);
-
-                                    if (taskSteal.getResult().contains("notifications")) {
-                                        String[] prevNotifications = taskSteal.getResult().get("notifications").toString().replaceAll("\\[", "").replaceAll("\\]", "").split(", ");
-                                        for (String n: prevNotifications) {
-                                            if (!n.equals("")) {
-                                                notifications.add(n);
-                                            }
-                                        }
-                                    }
-                                    db.collection("users").document(userDocument.getId()).update("notifications", notifications);
-                                    db.collection("users").document(userDocument.getId()).update("newNotifications", true);
-
-                                    // Add the stolen coin in the thief's piggybank.
-                                    DocumentReference docRef = db.collection("users").document(user.getUid());
-                                    docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<DocumentSnapshot> taskAddStolenCoin) {
-                                            List<String> piggybankCoinsList = new ArrayList<>();
-                                            piggybankCoinsList.add(maxCoin);
-                                            if (taskAddStolenCoin.getResult().contains("piggybank")) {
-                                                // Remove the square brackets from the String of previous coins stored in the database and split it into coins
-                                                String[] prevCoins = taskAddStolenCoin.getResult().get("piggybank").toString().replaceAll("\\[", "").replaceAll("\\]", "").split(", ");
-                                                for (String c: prevCoins) {
-                                                    if (!c.equals("")){
-                                                        piggybankCoinsList.add(c);
-                                                    }
-                                                }
-                                            }
-                                            db.collection("users").document(user.getUid()).update("piggybank", piggybankCoinsList);
-                                            db.collection("users").document(user.getUid()).update("stealUsed", true);
-                                            stealComplete(context);
-                                        }
-                                    });
-                                }
-                                else {
-                                    stealNotComplete(context);
-                                }
+                            if (taskSteal.getResult().contains("piggybankProtected") && taskSteal.getResult().getBoolean("piggybankProtected")) {
+                                    Toast.makeText(context, SelectUserActivity.selectedUser + " is protected from stealling. Please select another user.", Toast.LENGTH_SHORT).show();
                             }
                             else {
-                                stealNotComplete(context);
+                                DocumentReference docRef = db.collection("users").document(user.getUid());
+                                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> taskCurrentUser){
+                                        boolean canSteal = true;
+                                        if (taskCurrentUser.getResult().contains("cantStealFrom")) {
+                                            String[] users = taskCurrentUser.getResult().get("cantStealFrom").toString().replaceAll("\\[", "").replaceAll("\\]", "").split(", ");
+                                            List<String> usersList = new ArrayList(Arrays.asList(users));
+                                            if (usersList.contains(SelectUserActivity.selectedUser)) {
+                                                canSteal = false;
+                                                String username = taskCurrentUser.getResult().get("username").toString();
+                                                Toast.makeText(context, username + " gave you a present today. Don't try to bite the hand that feeds you!", Toast.LENGTH_LONG).show();
+                                            }
+                                        }
+                                        if (canSteal) {
+                                            if (taskSteal.getResult().contains("piggybank")) {
+                                                // Steal the coin with highest value from the selected user
+                                                String[] coins = taskSteal.getResult().get("piggybank").toString().replaceAll("\\[", "").replaceAll("\\]", "").split(", ");
+                                                if (!coins[0].equals("")) {
+                                                    double maxValue = 0.0;
+                                                    double maxCoinValue = 0.0;
+                                                    String maxCurrency = "";
+                                                    String maxId = "";
+                                                    for (int i = 0; i < coins.length; i++) {
+                                                        String c = coins[i];
+                                                        if (!c.equals("")) {
+                                                            String[] coinProperties = c.split(" ");
+                                                            double rate = 0;
+                                                            switch (coinProperties[1]) {
+                                                                case "QUID":
+                                                                    rate = MapActivity.rateQUID;
+                                                                    break;
+                                                                case "DOLR":
+                                                                    rate = MapActivity.rateDOLR;
+                                                                    break;
+                                                                case "PENY":
+                                                                    rate = MapActivity.ratePENY;
+                                                                    break;
+                                                                case "SHIL":
+                                                                    rate = MapActivity.rateSHIL;
+                                                                    break;
+                                                            }
+                                                            double value = Double.parseDouble(coinProperties[0]) * rate;
+                                                            if (value > maxValue) {
+                                                                maxValue = value;
+                                                                maxCoinValue = Double.parseDouble(coinProperties[0]);
+                                                                maxCurrency = coinProperties[1];
+                                                                maxId = coinProperties[2];
+                                                            }
+                                                        }
+                                                    }
+                                                    List<String> piggybankCoins = new ArrayList<>(Arrays.asList(coins));
+                                                    String maxCoin = String.valueOf(maxCoinValue) + " " + maxCurrency + " " + maxId;
+                                                    piggybankCoins.remove(maxCoin);
+                                                    db.collection("users").document(userDocument.getId()).update("piggybank", piggybankCoins);
+
+                                                    // Notify the robbed user a coin has been stolen
+                                                    List<String> notifications = new ArrayList<>();
+                                                    String notification = String.format("Someone stole a coin worth  %.2f GOLD from your piggybank!", maxValue);
+                                                    notifications.add(notification);
+
+                                                    if (taskSteal.getResult().contains("notifications")) {
+                                                        String[] prevNotifications = taskSteal.getResult().get("notifications").toString().replaceAll("\\[", "").replaceAll("\\]", "").split(", ");
+                                                        for (String n : prevNotifications) {
+                                                            if (!n.equals("")) {
+                                                                notifications.add(n);
+                                                            }
+                                                        }
+                                                    }
+                                                    db.collection("users").document(userDocument.getId()).update("notifications", notifications);
+                                                    db.collection("users").document(userDocument.getId()).update("newNotifications", true);
+
+                                                    // Add the stolen coin in the thief's piggybank.
+
+                                                    List<String> piggybankCoinsList = new ArrayList<>();
+                                                    piggybankCoinsList.add(maxCoin);
+                                                    if (taskCurrentUser.getResult().contains("piggybank")) {
+                                                        // Remove the square brackets from the String of previous coins stored in the database and split it into coins
+                                                        String[] prevCoins = taskCurrentUser.getResult().get("piggybank").toString().replaceAll("\\[", "").replaceAll("\\]", "").split(", ");
+                                                        for (String c : prevCoins) {
+                                                            if (!c.equals("")) {
+                                                                piggybankCoinsList.add(c);
+                                                            }
+                                                        }
+                                                    }
+                                                    db.collection("users").document(user.getUid()).update("piggybank", piggybankCoinsList);
+                                                    db.collection("users").document(user.getUid()).update("stealUsed", true);
+                                                    stealComplete(context);
+                                                }
+                                                else {
+                                                    stealNotComplete(context);
+                                                }
+                                            }
+                                            else {
+                                                stealNotComplete(context);
+                                            }
+                                        }
+                                    }
+                                });
+
                             }
                         }
                     });
@@ -155,10 +173,11 @@ public class StealActivity extends AppCompatActivity {
             }
         });
     }
+
     public static void stealComplete(Context context) {
         Toast.makeText(context, "You have stolen " + SelectUserActivity.selectedUser + "'s coin.", Toast.LENGTH_SHORT).show();
     }
     public static void stealNotComplete(Context context) {
-        Toast.makeText(context, SelectUserActivity.selectedUser + " doesn't have any coins in their piggybank. Please select another user.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, SelectUserActivity.selectedUser + " doesn't have any coins in their piggybank. Please select another user.", Toast.LENGTH_LONG).show();
     }
 }

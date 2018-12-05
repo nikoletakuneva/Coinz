@@ -143,7 +143,27 @@ public class BoostersActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "This Booster is locked. To unlock it you need to have a certain collection of coins in your Piggybank. Go to your Piggybank to learn more.", Toast.LENGTH_LONG).show();
                 }
                 else {
-                    startActivity(new Intent(getApplicationContext(), ShieldActivity.class));
+                    FirebaseFirestore db = FirebaseFirestore.getInstance();
+                    FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+                    FirebaseUser user = firebaseAuth.getCurrentUser();
+
+                    DocumentReference docRef = db.collection("users").document(user.getUid());
+                    docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if (Objects.requireNonNull(task.getResult()).contains("piggybankProtected")) {
+                                if (task.getResult().getBoolean("piggybankProtected")) {
+                                    Toast.makeText(getApplicationContext(), "You have already used this Booster.", Toast.LENGTH_SHORT).show();
+                                }
+                                else {
+                                    startActivity(new Intent(getApplicationContext(), ShieldActivity.class));
+                                }
+                            }
+                            else {
+                                startActivity(new Intent(getApplicationContext(), ShieldActivity.class));
+                            }
+                        }
+                    });
                 }
             }
         });
