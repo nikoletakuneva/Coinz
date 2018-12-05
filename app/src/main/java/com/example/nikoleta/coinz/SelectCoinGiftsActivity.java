@@ -154,7 +154,6 @@ public class SelectCoinGiftsActivity extends AppCompatActivity {
 
                                                             if (taskGifts.getResult().contains("notifications")) {
                                                                 String[] prevNotifications = taskGifts.getResult().get("notifications").toString().replaceAll("\\[", "").replaceAll("\\]", "").split(", ");
-                                                                //Collections.addAll(notifications, prevNotifications);
                                                                 for (String n: prevNotifications) {
                                                                     if (!n.equals("")) {
                                                                         notifications.add(n);

@@ -4,6 +4,53 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#94C2E3"
     tools:context=".StealActivity">
 
+    <ImageView
+        android:id="@+id/steal_image"
+        android:layout_width="wrap_content"
+        android:layout_height="353dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        app:srcCompat="@drawable/steal_piggybank" />
+
+    <TextView
+        android:id="@+id/steal_description"
+        android:layout_width="306dp"
+        android:layout_height="82dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="352dp"
+        android:text="This Booster gives you the ability to steal the coin with highest GOLD value from the piggybank of another user."
+        android:textAlignment="textStart"
+        android:textColor="#ffffff"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/steal_image" />
+
+    <Button
+        android:id="@+id/use_steal"
+        android:layout_width="106dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:background="#88ABD3"
+        android:text="Use Booster"
+        android:textColor="#ffffff"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/steal_description"
+        app:layout_constraintVertical_bias="0.072" />
 </android.support.constraint.ConstraintLayout>

@@ -46,12 +46,12 @@ public class BoostersActivity extends AppCompatActivity {
                 }
                 if (task.getResult().contains("stealUnlocked")) {
                     if (task.getResult().getBoolean("stealUnlocked")) {
-                        btnMagnet.setCompoundDrawablesWithIntrinsicBounds(R.drawable.thief, 0, R.drawable.unlocked, 0);
+                        btnSteal.setCompoundDrawablesWithIntrinsicBounds(R.drawable.thief, 0, R.drawable.unlocked, 0);
                     }
                 }
                 if (task.getResult().contains("shieldUnlocked")) {
                     if (task.getResult().getBoolean("shieldUnlocked")) {
-                        btnMagnet.setCompoundDrawablesWithIntrinsicBounds(R.drawable.shield, 0, R.drawable.unlocked, 0);
+                        btnShield.setCompoundDrawablesWithIntrinsicBounds(R.drawable.shield, 0, R.drawable.unlocked, 0);
                     }
                 }
             }
@@ -65,7 +65,7 @@ public class BoostersActivity extends AppCompatActivity {
                 Bitmap bitmap1 = ((BitmapDrawable)drawable1).getBitmap();
                 Bitmap bitmap2 = ((BitmapDrawable)drawable2).getBitmap();
                 if (bitmap1 == bitmap2){
-                    Toast.makeText(getApplicationContext(), "Locked.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "This Booster is locked. To unlock it you need to have a certain collection of coins in your Piggybank. Go to your Piggybank to learn more.", Toast.LENGTH_LONG).show();
                 }
                 else {
                     FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -103,10 +103,30 @@ public class BoostersActivity extends AppCompatActivity {
                 Bitmap bitmap1 = ((BitmapDrawable)drawable1).getBitmap();
                 Bitmap bitmap2 = ((BitmapDrawable)drawable2).getBitmap();
                 if (bitmap1 == bitmap2){
-                    Toast.makeText(getApplicationContext(), "Locked.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "This Booster is locked. To unlock it you need to have a certain collection of coins in your Piggybank. Go to your Piggybank to learn more.", Toast.LENGTH_LONG).show();
                 }
                 else {
-                    startActivity(new Intent(getApplicationContext(), StealActivity.class));
+                    FirebaseFirestore db = FirebaseFirestore.getInstance();
+                    FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+                    FirebaseUser user = firebaseAuth.getCurrentUser();
+
+                    DocumentReference docRef = db.collection("users").document(user.getUid());
+                    docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if (Objects.requireNonNull(task.getResult()).contains("stealUsed")) {
+                                if (task.getResult().getBoolean("stealUsed")) {
+                                    Toast.makeText(getApplicationContext(), "You have already used this Booster.", Toast.LENGTH_SHORT).show();
+                                }
+                                else {
+                                    startActivity(new Intent(getApplicationContext(), StealActivity.class));
+                                }
+                            }
+                            else {
+                                startActivity(new Intent(getApplicationContext(), StealActivity.class));
+                            }
+                        }
+                    });
                 }
             }
         });
@@ -120,7 +140,7 @@ public class BoostersActivity extends AppCompatActivity {
                 Bitmap bitmap1 = ((BitmapDrawable)drawable1).getBitmap();
                 Bitmap bitmap2 = ((BitmapDrawable)drawable2).getBitmap();
                 if (bitmap1 == bitmap2){
-                    Toast.makeText(getApplicationContext(), "Locked.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "This Booster is locked. To unlock it you need to have a certain collection of coins in your Piggybank. Go to your Piggybank to learn more.", Toast.LENGTH_LONG).show();
                 }
                 else {
                     startActivity(new Intent(getApplicationContext(), ShieldActivity.class));

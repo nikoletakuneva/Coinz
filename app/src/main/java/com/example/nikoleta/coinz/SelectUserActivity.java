@@ -32,6 +32,8 @@ public class SelectUserActivity extends Activity
 {
     ListView usernameList;
     static String selectedUser;
+    static boolean sendCoins = false;
+    static boolean stealCoins = false;
 
     @Override   protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,8 +67,17 @@ public class SelectUserActivity extends Activity
                 TextView selectedUserView = adapterView.getChildAt(position).findViewById(R.id.textView);
                 selectedUser = selectedUserView.getText().toString();
 
-                startActivity(new Intent(getApplicationContext(), SelectCoinGiftsActivity.class));
+                if (sendCoins == true && stealCoins == false) {
+                    startActivity(new Intent(getApplicationContext(), SelectCoinGiftsActivity.class));
+                }
+
                 finish();
+                if (sendCoins == false && stealCoins == true) {
+                    FirebaseUser currUser = firebaseAuth.getCurrentUser();
+                    StealActivity.stealCoin(getApplicationContext());
+
+                }
+
             }
         });
 

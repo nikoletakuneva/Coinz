@@ -353,7 +353,11 @@ public class MapActivity extends AppCompatActivity
                                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                         if (firebaseAuth.getCurrentUser()!= null && task.getResult().contains("wallet")) {
                                             String[] prevCoins = task.getResult().get("wallet").toString().replaceAll("\\[", "").replaceAll("\\]", "").split(", ");
-                                            walletCoinsList.addAll(Arrays.asList(prevCoins));
+                                            for (String c: prevCoins) {
+                                                if (!c.equals("")) {
+                                                    walletCoinsList.add(c);
+                                                }
+                                            }
                                         }
                                         db.collection("users").document(user.getUid()).update("wallet", walletCoinsList);
                                     }
@@ -584,6 +588,8 @@ public class MapActivity extends AppCompatActivity
         } else if (id == R.id.nav_boost) {
             startActivity(new Intent(getApplicationContext(), BoostersActivity.class));
         } else if (id == R.id.nav_gift) {
+            SelectUserActivity.sendCoins = true;
+            SelectUserActivity.stealCoins = false;
             startActivity(new Intent(getApplicationContext(), SelectUserActivity.class));
         }
         else if (id == R.id.nav_notifications) {

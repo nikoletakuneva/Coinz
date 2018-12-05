@@ -121,7 +121,6 @@ public class DownloadCompleteRunner {
                             if (taskWallet.getResult().contains("piggybank")) {
                                 // Remove the square brackets from the String of previous gifts stored in the database and split it into coins
                                 String[] prevGifts = taskWallet.getResult().get("piggybank").toString().replaceAll("\\[", "").replaceAll("\\]", "").split(", ");
-                                //piggybankCoinsList.addAll(Arrays.asList(prevGifts));
                                 for (String c: prevGifts) {
                                     if (!c.equals("")){
                                         piggybankCoinsList.add(c);
@@ -137,6 +136,7 @@ public class DownloadCompleteRunner {
                     db.collection("users").document(user.getUid()).update("stealUnlocked", false);
                     db.collection("users").document(user.getUid()).update("shieldUnlocked", false);
                     db.collection("users").document(user.getUid()).update("magnetMode", false);
+                    db.collection("users").document(user.getUid()).update("stealUsed", false);
                 }
             });
         }
