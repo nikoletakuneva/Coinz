@@ -30,6 +30,8 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
+
 
 public class LoginActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
 
@@ -167,6 +169,16 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                                 docRef.set(new User(account.getEmail(), "", 0.0));
                                 docRef.update("provider", "Google");
                                 docRef.update("coinsLeft", "25");
+                                docRef.update("wallet", new ArrayList<String>());
+                                docRef.update("coinsLeft", 25);
+                                docRef.update("magnetUnlocked", false);
+                                docRef.update("stealUnlocked", false);
+                                docRef.update("shieldUnlocked", false);
+                                docRef.update("magnetMode", false);
+                                docRef.update("stealUsed", false);
+                                docRef.update("piggybankProtected", false);
+                                docRef.update("cantStealFrom", new ArrayList<String>());
+                                docRef.update("piggybank", new ArrayList<String>());
                                 //docRef.update("username", account.getDisplayName());
                                 startActivity(new Intent(getApplicationContext(), UsernameActivity.class));
                             }

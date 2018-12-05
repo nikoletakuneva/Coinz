@@ -26,6 +26,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -119,6 +120,16 @@ public class SignUpActivity extends Activity {
                             db.collection("users").document(user.getUid()).set(new User(email, password, 0.0));
                             db.collection("users").document(user.getUid()).update("provider", "");
                             db.collection("users").document(user.getUid()).update("coinsLeft", "25");
+                            db.collection("users").document(user.getUid()).update("wallet", new ArrayList<String>());
+                            db.collection("users").document(user.getUid()).update("coinsLeft", 25);
+                            db.collection("users").document(user.getUid()).update("magnetUnlocked", false);
+                            db.collection("users").document(user.getUid()).update("stealUnlocked", false);
+                            db.collection("users").document(user.getUid()).update("shieldUnlocked", false);
+                            db.collection("users").document(user.getUid()).update("magnetMode", false);
+                            db.collection("users").document(user.getUid()).update("stealUsed", false);
+                            db.collection("users").document(user.getUid()).update("piggybankProtected", false);
+                            db.collection("users").document(user.getUid()).update("cantStealFrom", new ArrayList<String>());
+                            db.collection("users").document(user.getUid()).update("piggybank", new ArrayList<String>());
 
                             startActivity(new Intent(getApplicationContext(),UsernameActivity.class));
                             finish();
