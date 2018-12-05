@@ -147,10 +147,15 @@ public class SelectCoinGiftsActivity extends AppCompatActivity {
                                 docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                     @Override
                                     public void onComplete(@NonNull Task<DocumentSnapshot> taskGifts) {
-                                        if (taskGifts.getResult().contains("gifts")) {
+                                        if (taskGifts.getResult().contains("piggybank")) {
                                             // Remove the square brackets from the String of previous gifts stored in the database and split it into coins
-                                            String[] prevGifts = taskGifts.getResult().get("gifts").toString().replaceAll("\\[", "").replaceAll("\\]", "").split(", ");
-                                            gifts.addAll(Arrays.asList(prevGifts));
+                                            String[] prevGifts = taskGifts.getResult().get("piggybank").toString().replaceAll("\\[", "").replaceAll("\\]", "").split(", ");
+                                            //gifts.addAll(Arrays.asList(prevGifts));
+                                            for (String c: prevGifts) {
+                                                if (!c.equals("")){
+                                                    gifts.add(c);
+                                                }
+                                            }
 
                                             DocumentReference docRefUsername = db.collection("users").document(user.getUid());
                                             docRefUsername.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -160,15 +165,18 @@ public class SelectCoinGiftsActivity extends AppCompatActivity {
                                                         DocumentSnapshot documentCurrUser = taskGetUsername.getResult();
                                                         if (documentCurrUser.exists()) {
                                                             String username = documentCurrUser.getString("username");
-                                                            //String notification = username + " sent you a gift.";
                                                             String notification = String.format(username + " sent you %.2f GOLD! You can view the gift in your Piggybank.", finalGiftsSum);
                                                             notifications.add(notification);
 
                                                             if (taskGifts.getResult().contains("notifications")) {
                                                                 String[] prevNotifications = taskGifts.getResult().get("notifications").toString().replaceAll("\\[", "").replaceAll("\\]", "").split(", ");
-                                                                Collections.addAll(notifications, prevNotifications);
+                                                                //Collections.addAll(notifications, prevNotifications);
+                                                                for (String n: prevNotifications) {
+                                                                    if (!n.equals("")) {
+                                                                        notifications.add(n);
+                                                                    }
+                                                                }
                                                             }
-
                                                             db.collection("users").document(document.getId()).update("notifications", notifications);
                                                             db.collection("users").document(document.getId()).update("newNotifications", true);
                                                         }
@@ -182,7 +190,7 @@ public class SelectCoinGiftsActivity extends AppCompatActivity {
                                                 }
                                             });
                                         }
-                                        db.collection("users").document(document.getId()).update("gifts", gifts);
+                                        db.collection("users").document(document.getId()).update("piggybank", gifts);
                                         Toast.makeText(SelectCoinGiftsActivity.this, "Gift sent to user.", Toast.LENGTH_SHORT).show();
                                     }
                                 });

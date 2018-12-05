@@ -68,6 +68,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Stream;
@@ -177,11 +179,6 @@ public class MapActivity extends AppCompatActivity
                 //Download the GeoJSON file
                 DownloadFileTask task = new DownloadFileTask();
                 String url = "http://homepages.inf.ed.ac.uk/stg/coinz/" + todayDate + "/coinzmap.geojson";
-                FirebaseFirestore db = FirebaseFirestore.getInstance();
-                FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                db.collection("users").document(user.getUid()).update("wallet", new ArrayList<String>());
-                db.collection("users").document(user.getUid()).update("coinsLeft", 25);
                 downloadDate = todayDate;
                 task.execute(url);
             }

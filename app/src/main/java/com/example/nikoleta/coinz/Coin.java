@@ -29,6 +29,21 @@ public class Coin {
         return value;
     }
 
+    public double getGOLDValue() {
+        double GOLD = 0.0;
+        switch(this.currency) {
+            case "QUID": GOLD = this.value*MapActivity.rateQUID;
+                break;
+            case "DOLR": GOLD = this.value*MapActivity.rateDOLR;
+                break;
+            case "PENY": GOLD = this.value*MapActivity.ratePENY;
+                break;
+            case "SHIL": GOLD = this.value*MapActivity.rateSHIL;
+                break;
+        }
+        return GOLD;
+    }
+
     public Integer getImage() {
         return image;
     }

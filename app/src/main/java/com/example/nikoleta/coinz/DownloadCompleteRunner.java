@@ -1,5 +1,14 @@
 package com.example.nikoleta.coinz;
 
+import android.support.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.JsonObject;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
@@ -13,6 +22,8 @@ import org.json.JSONObject;
 
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -41,10 +52,6 @@ public class DownloadCompleteRunner {
         Feature feature;
         FeatureCollection fc = FeatureCollection.fromJson(result);
 
-        if (MapActivity.fileDownloaded == 0){
-            writeFile(result, "coinzmap.geojson");
-        }
-
         try {
             JSONObject jsonObject = new JSONObject(result);
             JSONObject rates = jsonObject.getJSONObject("rates");
@@ -54,6 +61,71 @@ public class DownloadCompleteRunner {
             MapActivity.rateSHIL = rates.getDouble("SHIL");
         } catch (JSONException e) {
             e.printStackTrace();
+        }
+
+        if (MapActivity.fileDownloaded == 0){
+            writeFile(result, "coinzmap.geojson");
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+            FirebaseUser user = firebaseAuth.getCurrentUser();
+
+            DocumentReference docRef = db.collection("users").document(user.getUid());
+            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> taskWallet) {
+                    if (taskWallet.getResult().contains("wallet")) {
+                        String[] coins = taskWallet.getResult().get("wallet").toString().replaceAll("\\[", "").replaceAll("\\]", "").split(", ");
+                        if (!coins[0].equals("")) {
+                            double maxValue = 0.0;
+                            double maxCoinValue = 0.0;
+                            String maxCurrency = "";
+                            String maxId = "";
+                            for (String c : coins) {
+                                if (!c.equals("")) {
+                                    String[] coinProperties = c.split(" ");
+                                    double rate = 0;
+                                    switch (coinProperties[1]) {
+                                        case "QUID":
+                                            rate = MapActivity.rateQUID;
+                                            break;
+                                        case "DOLR":
+                                            rate = MapActivity.rateDOLR;
+                                            break;
+                                        case "PENY":
+                                            rate = MapActivity.ratePENY;
+                                            break;
+                                        case "SHIL":
+                                            rate = MapActivity.rateSHIL;
+                                            break;
+                                    }
+                                    double value = Double.parseDouble(coinProperties[0]) * rate;
+                                    if (value > maxValue) {
+                                        maxValue = value;
+                                        maxCoinValue =  Double.parseDouble(coinProperties[0]);
+                                        maxCurrency = coinProperties[1];
+                                        maxId = coinProperties[2];
+                                    }
+                                }
+                            }
+                            String maxCoin = String.valueOf(maxCoinValue) + " " + maxCurrency + " " + maxId;
+                            List<String> gifts = new ArrayList<>();
+                            gifts.add(maxCoin);
+                            if (taskWallet.getResult().contains("piggybank")) {
+                                // Remove the square brackets from the String of previous gifts stored in the database and split it into coins
+                                String[] prevGifts = taskWallet.getResult().get("piggybank").toString().replaceAll("\\[", "").replaceAll("\\]", "").split(", ");
+                                gifts.addAll(Arrays.asList(prevGifts));
+                            }
+                            db.collection("users").document(user.getUid()).update("piggybank", gifts);
+                        }
+                    }
+                    db.collection("users").document(user.getUid()).update("wallet", new ArrayList<String>());
+                    db.collection("users").document(user.getUid()).update("coinsLeft", 25);
+
+                    db.collection("users").document(user.getUid()).update("magnetUnlocked", false);
+                    db.collection("users").document(user.getUid()).update("stealUnlocked", false);
+                    db.collection("users").document(user.getUid()).update("shieldUnlocked", false);
+                }
+            });
         }
 
         List<Feature> features_list = fc.features();

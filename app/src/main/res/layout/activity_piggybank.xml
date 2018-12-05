@@ -6,30 +6,10 @@
     android:layout_height="wrap_content"
     android:background="@drawable/grid_row_border">
 
-    <GridView xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/gridview"
-        android:layout_width="288dp"
-        android:layout_height="222dp"
-        android:layout_marginBottom="5dp"
-        android:layout_marginTop="10dp"
-        android:background="@drawable/grid_row_border"
-        android:columnWidth="90dp"
-        android:gravity="center"
-        android:horizontalSpacing="10dp"
-        android:numColumns="auto_fit"
-        android:stretchMode="columnWidth"
-        android:verticalSpacing="10dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.484"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/piggybank"
-        app:layout_constraintVertical_bias="0.09" />
-
     <ImageView
         android:id="@+id/piggybank"
         android:layout_width="174dp"
-        android:layout_height="173dp"
+        android:layout_height="171dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="28dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -57,8 +37,8 @@
 
     <TextView
         android:id="@+id/coins"
-        android:layout_width="123dp"
-        android:layout_height="121dp"
+        android:layout_width="147dp"
+        android:layout_height="122dp"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
@@ -68,12 +48,12 @@
         android:textColor="#aba4a4"
         android:textSize="19sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/gridview"
+        app:layout_constraintBottom_toTopOf="@+id/unlock_boosters"
         app:layout_constraintEnd_toStartOf="@+id/piggybank"
-        app:layout_constraintHorizontal_bias="0.732"
+        app:layout_constraintHorizontal_bias="0.893"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.607" />
+        app:layout_constraintVertical_bias="1.0" />
 
     <Button
         android:id="@+id/select_all"
@@ -101,5 +81,82 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/send_bank"
         app:layout_constraintTop_toBottomOf="@+id/gridview" />
+
+    <TextView
+        android:id="@+id/unlock_boosters"
+        android:layout_width="240dp"
+        android:layout_height="28dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="Select a booster to unlock:"
+        android:textAlignment="center"
+        android:textColor="#aba4a4"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/piggybank" />
+
+    <Button
+        android:id="@+id/unlock_magnet"
+        android:layout_width="39dp"
+        android:layout_height="40dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/magnet"
+        app:layout_constraintBottom_toTopOf="@+id/gridview"
+        app:layout_constraintEnd_toStartOf="@+id/unlock_thief"
+        app:layout_constraintHorizontal_bias="0.882"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/unlock_boosters"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <Button
+        android:id="@+id/unlock_thief"
+        android:layout_width="39dp"
+        android:layout_height="40dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/thief"
+        app:layout_constraintBottom_toTopOf="@+id/gridview"
+        app:layout_constraintEnd_toStartOf="@+id/unlock_shield"
+        app:layout_constraintTop_toBottomOf="@+id/unlock_boosters"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <Button
+        android:id="@+id/unlock_shield"
+        android:layout_width="39dp"
+        android:layout_height="40dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="112dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/shield"
+        app:layout_constraintBottom_toTopOf="@+id/gridview"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/unlock_boosters"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <GridView
+        android:id="@+id/gridview"
+        android:layout_width="314dp"
+        android:layout_height="193dp"
+        android:layout_marginBottom="5dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/grid_row_border"
+        android:columnWidth="90dp"
+        android:gravity="center"
+        android:horizontalSpacing="10dp"
+        android:numColumns="auto_fit"
+        android:stretchMode="columnWidth"
+        android:verticalSpacing="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/piggybank"
+        app:layout_constraintVertical_bias="0.559" />
 
 </android.support.constraint.ConstraintLayout>
