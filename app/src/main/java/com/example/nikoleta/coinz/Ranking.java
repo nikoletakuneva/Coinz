@@ -1,6 +1,7 @@
 package com.example.nikoleta.coinz;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -34,7 +35,7 @@ public class Ranking extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ranking);
-        RankingList = (ListView)findViewById(R.id.listViewRanking);
+        RankingList = (ListView) findViewById(R.id.listViewRanking);
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
@@ -48,25 +49,38 @@ public class Ranking extends AppCompatActivity {
 
                 List<String> userListOrdered = new ArrayList<>();
                 List<DocumentSnapshot> documentsList = task.getResult().getDocuments();
-                for (int i=0; i<documentsList.size(); i++) {
+                for (int i = 0; i < documentsList.size(); i++) {
                     DocumentSnapshot document = documentsList.get(i);
-                    userListOrdered.add(i+1 + "    " + (String) document.get("username"));
-                    if(document.getId().equals(user.getUid())) {
-                        int currPos = i+1;
+                    userListOrdered.add(i + 1 + "    " + (String) document.get("username"));
+                    if (document.getId().equals(user.getUid())) {
+                        int currPos = i + 1;
                         if (currPos == 1) {
-                            userPosition.setText("Congratulations, you are first!");
-                        }
-                        else {
+                            DocumentReference docRefUser = db.collection("users").document(user.getUid());
+                            docRefUser.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> taskCurrentUser) {
+                                    userPosition.setText("Congratulations, you are first!");
+                                    if(taskCurrentUser.getResult().contains("treasureUnlocked") && taskCurrentUser.getResult().contains("treasureFound") && documentsList.size() > 1) {
+                                        if (!taskCurrentUser.getResult().getBoolean("treasureUnlocked") ) {
+                                            db.collection("users").document(user.getUid()).update("treasureUnlocked", true);
+                                        }
+                                        if(!taskCurrentUser.getResult().getBoolean("treasureFound")) {
+                                            startActivity(new Intent(getApplicationContext(), TreasureActivity.class));
+                                            finish();
+                                        }
+                                    }
+
+                                }
+                            });
+
+                        } else {
                             if (currPos % 10 == 1) {
                                 userPosition.setText("Your current postion is: " + currPos + "st.");
-                            }
-                            else if (currPos % 10 == 2) {
+                            } else if (currPos % 10 == 2) {
                                 userPosition.setText("Your current postion is: " + currPos + "nd.");
-                            }
-                            else if (currPos % 10 == 3) {
+                            } else if (currPos % 10 == 3) {
                                 userPosition.setText("Your current postion is: " + currPos + "rd.");
-                            }
-                            else {
+                            } else {
                                 userPosition.setText("Your current postion is: " + currPos + "th.");
                             }
 
@@ -75,12 +89,13 @@ public class Ranking extends AppCompatActivity {
                     }
                 }
 
-                String[] userArray= new String[userListOrdered.size()];
+                String[] userArray = new String[userListOrdered.size()];
                 userListOrdered.toArray(userArray);
                 createListView(userArray);
             }
         });
     }
+
     public void createListView(String[] userArray) {
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, R.layout.ranking_list_view, R.id.ranking_view, userArray);
         RankingList.setAdapter(arrayAdapter);

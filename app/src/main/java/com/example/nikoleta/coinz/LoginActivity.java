@@ -179,7 +179,8 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                                 docRef.update("piggybankProtected", false);
                                 docRef.update("cantStealFrom", new ArrayList<String>());
                                 docRef.update("piggybank", new ArrayList<String>());
-                                //docRef.update("username", account.getDisplayName());
+                                docRef.update("treasureUnlocked",false);
+                                docRef.update("treasureFound",false);
                                 startActivity(new Intent(getApplicationContext(), UsernameActivity.class));
                             }
                             else {

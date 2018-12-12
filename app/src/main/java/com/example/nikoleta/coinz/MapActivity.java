@@ -96,6 +96,9 @@ public class MapActivity extends AppCompatActivity
 
     static double rateDOLR, rateQUID, ratePENY, rateSHIL;
 
+    private final double treasureLatitude = 55.9462893;
+    private final double treasureLongitude = -3.1850306;
+
     static int fileDownloaded = 0;
 
     static List<Coin> walletCoins = new ArrayList<>();
@@ -322,6 +325,17 @@ public class MapActivity extends AppCompatActivity
                                 collectionDistance = 75;
                             }
                         }
+
+                        if (task.getResult().contains("treasureUnlocked") && task.getResult().contains("treasureFound")) {
+                            if (task.getResult().getBoolean("treasureUnlocked") && !task.getResult().getBoolean("treasureFound") && distance(user_latitude, user_longitude, treasureLatitude, treasureLongitude) <= 15) {
+                                startActivity(new Intent(getApplicationContext(), TreasureFoundActivity.class));
+                                db.collection("users").document(user.getUid()).update("treasureFound", true);
+                                double currentMoney = Double.parseDouble(task.getResult().get("money").toString()) + 1000;
+                                db.collection("users").document(user.getUid()).update("money", currentMoney);
+                            }
+                        }
+
+
                         for (Marker marker: map.getMarkers()) {
                             LatLng latlng = marker.getPosition();
                             double marker_latitude = latlng.getLatitude();
@@ -347,10 +361,10 @@ public class MapActivity extends AppCompatActivity
                                 String coinStr = coin.getValue() + " " + coin.getCurrency() + " "  + coin.getId();
                                 walletCoinsList.add(coinStr);
 
-                                DocumentReference docRef = db.collection("users").document(user.getUid());
-                                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+//                                DocumentReference docRef = db.collection("users").document(user.getUid());
+//                                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+//                                    @Override
+//                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                         if (firebaseAuth.getCurrentUser()!= null && task.getResult().contains("wallet")) {
                                             String[] prevCoins = task.getResult().get("wallet").toString().replaceAll("\\[", "").replaceAll("\\]", "").split(", ");
                                             for (String c: prevCoins) {
@@ -360,8 +374,8 @@ public class MapActivity extends AppCompatActivity
                                             }
                                         }
                                         db.collection("users").document(user.getUid()).update("wallet", walletCoinsList);
-                                    }
-                                });
+//                                    }
+//                                });
                             }
                         }
                     }

@@ -83,6 +83,12 @@
         <activity
             android:name=".Ranking"
             android:theme="@style/Dialog_Full_Width" />
+        <activity
+            android:name=".TreasureActivity"
+            android:theme="@style/Dialog_Full_Width" />
+        <activity
+            android:name=".TreasureFoundActivity"
+            android:theme="@style/Dialog_Full_Width" />
     </application>
 
 </manifest>

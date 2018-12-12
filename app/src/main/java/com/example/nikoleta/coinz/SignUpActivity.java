@@ -130,6 +130,8 @@ public class SignUpActivity extends Activity {
                             db.collection("users").document(user.getUid()).update("piggybankProtected", false);
                             db.collection("users").document(user.getUid()).update("cantStealFrom", new ArrayList<String>());
                             db.collection("users").document(user.getUid()).update("piggybank", new ArrayList<String>());
+                            db.collection("users").document(user.getUid()).update("treasureUnlocked",false);
+                            db.collection("users").document(user.getUid()).update("treasureFound",false);
 
                             startActivity(new Intent(getApplicationContext(),UsernameActivity.class));
                             finish();
