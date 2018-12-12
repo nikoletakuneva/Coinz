@@ -100,127 +100,140 @@ public class SelectCoinGiftsActivity extends AppCompatActivity {
         sendGift.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                MapActivity.walletCoins.removeAll(coinsSelected);
-                adapter.notifyDataSetChanged();
-                adapter.selectedPositions.clear();
-
-                Query searchUsers = db.collection("users").whereEqualTo("username", SelectUserActivity.selectedUser);
-                Task<QuerySnapshot> task = searchUsers.get();
-                task.addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                DocumentReference docRef = db.collection("users").document(user.getUid());
+                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> taskFindUser) {
-                        List<DocumentSnapshot> documentsList = taskFindUser.getResult().getDocuments();
-                        if (documentsList.isEmpty()) {
-                            Toast.makeText(SelectCoinGiftsActivity.this, "No such user.",
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                        else {
-                            List<String> gifts = new ArrayList<>();
-                            List<String> notifications = new ArrayList<>();
-                            List<String> users = new ArrayList<>();
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if(Double.parseDouble(task.getResult().get("coinsLeft").toString()) == 0) {
+                            MapActivity.walletCoins.removeAll(coinsSelected);
+                            adapter.notifyDataSetChanged();
+                            adapter.selectedPositions.clear();
 
-                            double giftsSum=0;
-                            for (Coin c: coinsSelected) {
-                                giftsSum = giftsSum + c.getGOLDValue();
-                                String coin = c.getValue() + " " + c.getCurrency() + " "  + c.getId();
-                                gifts.add(coin);
-                            }
+                            Query searchUsers = db.collection("users").whereEqualTo("username", SelectUserActivity.selectedUser);
+                            Task<QuerySnapshot> taskSearch = searchUsers.get();
+                            taskSearch.addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> taskFindUser) {
+                                    List<DocumentSnapshot> documentsList = taskFindUser.getResult().getDocuments();
+                                    if (documentsList.isEmpty()) {
+                                        Toast.makeText(SelectCoinGiftsActivity.this, "No such user.",
+                                                Toast.LENGTH_SHORT).show();
+                                    }
+                                    else {
+                                        List<String> gifts = new ArrayList<>();
+                                        List<String> notifications = new ArrayList<>();
+                                        List<String> users = new ArrayList<>();
 
-                            for (DocumentSnapshot document : documentsList) {
-                                DocumentReference docRef = db.collection("users").document(document.getId());
-                                double finalGiftsSum = giftsSum;
-                                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<DocumentSnapshot> taskGifts) {
-                                        if (taskGifts.getResult().contains("piggybank")) {
-                                            // Remove the square brackets from the String of previous gifts stored in the database and split it into coins
-                                            String[] prevGifts = taskGifts.getResult().get("piggybank").toString().replaceAll("\\[", "").replaceAll("\\]", "").split(", ");
-                                            //gifts.addAll(Arrays.asList(prevGifts));
-                                            for (String c: prevGifts) {
-                                                if (!c.equals("")){
-                                                    gifts.add(c);
-                                                }
-                                            }
+                                        double giftsSum=0;
+                                        for (Coin c: coinsSelected) {
+                                            giftsSum = giftsSum + c.getGOLDValue();
+                                            String coin = c.getValue() + " " + c.getCurrency() + " "  + c.getId();
+                                            gifts.add(coin);
+                                        }
 
-                                            DocumentReference docRefUsername = db.collection("users").document(user.getUid());
-                                            docRefUsername.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                        for (DocumentSnapshot document : documentsList) {
+                                            DocumentReference docRef = db.collection("users").document(document.getId());
+                                            double finalGiftsSum = giftsSum;
+                                            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                                 @Override
-                                                public void onComplete(@NonNull Task<DocumentSnapshot> taskGetUsername) {
-                                                    if (taskGetUsername.isSuccessful()) {
-                                                        DocumentSnapshot documentCurrUser = taskGetUsername.getResult();
-                                                        if (documentCurrUser.exists()) {
-                                                            String username = documentCurrUser.getString("username");
-                                                            String notification = String.format(username + " sent you %.2f GOLD! You can view the gift in your Piggybank.", finalGiftsSum);
-                                                            notifications.add(notification);
+                                                public void onComplete(@NonNull Task<DocumentSnapshot> taskGifts) {
+                                                    if (taskGifts.getResult().contains("piggybank")) {
+                                                        // Remove the square brackets from the String of previous gifts stored in the database and split it into coins
+                                                        String[] prevGifts = taskGifts.getResult().get("piggybank").toString().replaceAll("\\[", "").replaceAll("\\]", "").split(", ");
+                                                        //gifts.addAll(Arrays.asList(prevGifts));
+                                                        for (String c: prevGifts) {
+                                                            if (!c.equals("")){
+                                                                gifts.add(c);
+                                                            }
+                                                        }
 
-                                                            if (taskGifts.getResult().contains("notifications")) {
-                                                                String[] prevNotifications = taskGifts.getResult().get("notifications").toString().replaceAll("\\[", "").replaceAll("\\]", "").split(", ");
-                                                                for (String n: prevNotifications) {
-                                                                    if (!n.equals("")) {
-                                                                        notifications.add(n);
+                                                        DocumentReference docRefUsername = db.collection("users").document(user.getUid());
+                                                        docRefUsername.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                            @Override
+                                                            public void onComplete(@NonNull Task<DocumentSnapshot> taskGetUsername) {
+                                                                if (taskGetUsername.isSuccessful()) {
+                                                                    DocumentSnapshot documentCurrUser = taskGetUsername.getResult();
+                                                                    if (documentCurrUser.exists()) {
+                                                                        String username = documentCurrUser.getString("username");
+                                                                        String notification = String.format(username + " sent you %.2f GOLD! You can view the gift in your Piggybank.", finalGiftsSum);
+                                                                        notifications.add(notification);
+
+                                                                        if (taskGifts.getResult().contains("notifications")) {
+                                                                            String[] prevNotifications = taskGifts.getResult().get("notifications").toString().replaceAll("\\[", "").replaceAll("\\]", "").split(", ");
+                                                                            for (String n: prevNotifications) {
+                                                                                if (!n.equals("")) {
+                                                                                    notifications.add(n);
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                        db.collection("users").document(document.getId()).update("notifications", notifications);
+                                                                        db.collection("users").document(document.getId()).update("newNotifications", true);
+
+                                                                        users.add(username);
+                                                                        if (taskGifts.getResult().contains("cantStealFrom")) {
+                                                                            String[] prevUsers = taskGifts.getResult().get("cantStealFrom").toString().replaceAll("\\[", "").replaceAll("\\]", "").split(", ");
+                                                                            for (String u: prevUsers) {
+                                                                                if (!u.equals("")) {
+                                                                                    users.add(u);
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                        db.collection("users").document(document.getId()).update("cantStealFrom", users);
+                                                                    }
+                                                                    else {
+                                                                        Log.d("SelectCoinGiftsActivity", "No such document");
                                                                     }
                                                                 }
-                                                            }
-                                                            db.collection("users").document(document.getId()).update("notifications", notifications);
-                                                            db.collection("users").document(document.getId()).update("newNotifications", true);
-
-                                                            users.add(username);
-                                                            if (taskGifts.getResult().contains("cantStealFrom")) {
-                                                                String[] prevUsers = taskGifts.getResult().get("cantStealFrom").toString().replaceAll("\\[", "").replaceAll("\\]", "").split(", ");
-                                                                for (String u: prevUsers) {
-                                                                    if (!u.equals("")) {
-                                                                        users.add(u);
-                                                                    }
+                                                                else {
+                                                                    Log.d("SelectCoinGiftsActivity", "get failed with ", taskGetUsername.getException());
                                                                 }
                                                             }
-                                                            db.collection("users").document(document.getId()).update("cantStealFrom", users);
-                                                        }
-                                                        else {
-                                                            Log.d("SelectCoinGiftsActivity", "No such document");
-                                                        }
+                                                        });
                                                     }
-                                                    else {
-                                                        Log.d("SelectCoinGiftsActivity", "get failed with ", taskGetUsername.getException());
-                                                    }
+                                                    db.collection("users").document(document.getId()).update("piggybank", gifts);
+                                                    Toast.makeText(SelectCoinGiftsActivity.this, "Gift sent to user.", Toast.LENGTH_SHORT).show();
                                                 }
                                             });
                                         }
-                                        db.collection("users").document(document.getId()).update("piggybank", gifts);
-                                        Toast.makeText(SelectCoinGiftsActivity.this, "Gift sent to user.", Toast.LENGTH_SHORT).show();
+
+                                        coinsSelected.clear();
+
+                                        int coinsNum = MapActivity.walletCoins.size();
+                                        double totalMoney = 0;
+                                        for (Coin coin : MapActivity.walletCoins) {
+                                            String currency = coin.getCurrency();
+                                            double rate = 0;
+                                            switch (currency) {
+                                                case "QUID":
+                                                    rate = MapActivity.rateQUID;
+                                                    break;
+                                                case "DOLR":
+                                                    rate = MapActivity.rateDOLR;
+                                                    break;
+                                                case "PENY":
+                                                    rate = MapActivity.ratePENY;
+                                                    break;
+                                                case "SHIL":
+                                                    rate = MapActivity.rateSHIL;
+                                                    break;
+                                            }
+                                            totalMoney = totalMoney + coin.getValue() * rate;
+                                        }
+
+                                        walletSummary.setText(String.format("Coins: %d\n\nTotal:\n%.2f GOLD", coinsNum, totalMoney));
+                                        updateWallet();
+
                                     }
-                                });
-                            }
-
-                            coinsSelected.clear();
-
-                            int coinsNum = MapActivity.walletCoins.size();
-                            double totalMoney = 0;
-                            for (Coin coin : MapActivity.walletCoins) {
-                                String currency = coin.getCurrency();
-                                double rate = 0;
-                                switch (currency) {
-                                    case "QUID":
-                                        rate = MapActivity.rateQUID;
-                                        break;
-                                    case "DOLR":
-                                        rate = MapActivity.rateDOLR;
-                                        break;
-                                    case "PENY":
-                                        rate = MapActivity.ratePENY;
-                                        break;
-                                    case "SHIL":
-                                        rate = MapActivity.rateSHIL;
-                                        break;
                                 }
-                                totalMoney = totalMoney + coin.getValue() * rate;
-                            }
-
-                            walletSummary.setText(String.format("Coins: %d\n\nTotal:\n%.2f GOLD", coinsNum, totalMoney));
-                            updateWallet();
-
+                            });
+                        }
+                        else {
+                            Toast.makeText(SelectCoinGiftsActivity.this, "You have to bank 25 coins first in order send coins to users. Coins left: " + task.getResult().get("coinsLeft").toString(), Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
+
+
 
 
             }

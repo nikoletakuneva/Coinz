@@ -335,7 +335,6 @@ public class MapActivity extends AppCompatActivity
                             }
                         }
 
-
                         for (Marker marker: map.getMarkers()) {
                             LatLng latlng = marker.getPosition();
                             double marker_latitude = latlng.getLatitude();
