@@ -80,6 +80,9 @@
         <activity
             android:name=".ShieldActivity"
             android:theme="@style/Dialog_Full_Width" />
+        <activity
+            android:name=".Ranking"
+            android:theme="@style/Dialog_Full_Width" />
     </application>
 
 </manifest>

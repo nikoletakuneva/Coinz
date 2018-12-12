@@ -597,6 +597,9 @@ public class MapActivity extends AppCompatActivity
             navigationView.getMenu().getItem(4).setIconTintMode(null).setIcon(R.drawable.no_notifications);
             startActivity(new Intent(getApplicationContext(), NotificationsActivity.class));
         }
+        else if (id == R.id.nav_ranking) {
+            startActivity(new Intent(getApplicationContext(), Ranking.class));
+        }
         else if (id == R.id.nav_logout) {
             FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();;
             firebaseAuth.signOut();

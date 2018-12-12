@@ -32,6 +32,10 @@
                 android:id="@+id/nav_gift"
                 android:icon="@drawable/giftbox"
                 android:title="Send coins" />
+        <item
+            android:id="@+id/nav_ranking"
+            android:icon="@drawable/ranking"
+            android:title="Ranking" />
     </group>
 
     <group android:id="@+id/menu_bottom"
