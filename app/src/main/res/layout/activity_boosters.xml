@@ -9,6 +9,7 @@
 
     <ImageView
         android:id="@+id/rocket"
+        android:contentDescription="@null"
         android:layout_width="526dp"
         android:layout_height="378dp"
         android:layout_marginBottom="8dp"
@@ -37,7 +38,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.823"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/rocket" />
+        app:layout_constraintTop_toBottomOf="@+id/rocket"
+        tools:ignore="HardcodedText" />
 
     <Button
         android:id="@+id/steal_booster"
@@ -58,7 +60,8 @@
         app:layout_constraintHorizontal_bias="0.823"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/magnet_booster"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="0.0"
+        tools:ignore="HardcodedText" />
 
     <Button
         android:id="@+id/protection_booster"
@@ -77,5 +80,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.823"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="HardcodedText" />
 </android.support.constraint.ConstraintLayout>

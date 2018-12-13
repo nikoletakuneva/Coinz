@@ -15,7 +15,7 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="Congratulations, you have found a map leading to a hidden tresure!\nIn late December 1803 a ship called El Pensamiento allegedly made its way secretely into Leith Harbour. It is believed to have carried millions of pounds' worth of gold, silver, and jewels. This treasure went missing but some belive it was transferred somewhere by Sir Francis Mollison. Go there and find it!"
+        android:text="@string/treasure_unlocked"
         android:textAlignment="textStart"
         android:textColor="#ffffff"
         android:textStyle="bold"
@@ -28,6 +28,7 @@
 
     <ImageView
         android:id="@+id/imageView9"
+        android:contentDescription="@null"
         android:layout_width="248dp"
         android:layout_height="228dp"
         android:layout_marginEnd="8dp"

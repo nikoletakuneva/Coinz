@@ -16,7 +16,7 @@
         android:layout_marginEnd="10dp"
         android:layout_marginStart="10dp"
         android:layout_marginTop="8dp"
-        android:text="GAME RULES\n\nWelcome to the wonderful world of Coinz! Here you can collect coins of 4 different virtual currencies (QUID, DOLR, SHIL and PENY) scattered on the map, store them in your Bank as GOLD coins and become the richest person! You can send coins to friends or steal coins from enemies. Your goal is to become first in the Ranking list. To help you on the road to wealth, we've created some Boosters. You can unlock them from your Piggybank. This is the place where all the coins you have been given as a gift are stored. A single coin (with the highest GOLD value) is transfered at the end of the day from your Wallet to your Piggybank. The coins can stay there for an indefinite amount of a time, however, your Wallet is emptied at the end of each calendar day. To ensure you are gaining proft, don't forget to transfer money to the bank. You can do this both from your Piggybank and from your Wallet, however, you have a limit of 25 coins a day for banking from the Wallet. There is no limit for banking from the Piggybank. Enjoy the game, keep collecting coins and if you manage to reach the first place a hidden price awaits you!"
+        android:text="@string/game_rules"
         android:textAlignment="textStart"
         android:textColor="@android:color/tab_indicator_text"
         android:textSize="14sp"

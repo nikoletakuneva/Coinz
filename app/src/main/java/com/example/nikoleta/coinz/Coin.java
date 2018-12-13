@@ -2,7 +2,7 @@ package com.example.nikoleta.coinz;
 
 public class Coin {
     String id;
-    String currency;
+    private String currency;
     double value;
     Integer image;
     Coin(String curr, double val, String id) {
@@ -54,10 +54,6 @@ public class Coin {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public void setCurrency(String currency) {
-        this.currency = currency;
     }
 
     public void setValue(double value) {

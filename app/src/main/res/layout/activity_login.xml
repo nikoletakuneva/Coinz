@@ -27,7 +27,8 @@
             android:layout_height="match_parent"
             android:hint="Email"
             android:theme="@style/EditTextTheme"
-            android:inputType="textEmailAddress" />
+            android:inputType="textEmailAddress"
+            tools:ignore="HardcodedText" />
 
     </android.support.design.widget.TextInputLayout>
 
@@ -49,7 +50,8 @@
             android:theme="@style/EditTextTheme"
             android:hint="Password"
             android:inputType="textPassword"
-            android:singleLine="false" />
+            android:singleLine="false"
+            tools:ignore="HardcodedText" />
 
     </android.support.design.widget.TextInputLayout>
 
@@ -67,14 +69,15 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/passwordLayout" />
+        app:layout_constraintTop_toBottomOf="@+id/passwordLayout"
+        tools:ignore="HardcodedText" />
 
     <Button
         android:id="@+id/signUpButton"
         android:layout_width="153dp"
         android:layout_height="31dp"
         android:layout_marginBottom="8dp"
-        android:layout_marginEnd="32dp"
+        android:layout_marginEnd="44dp"
         android:layout_marginTop="8dp"
         android:background="#64dad2"
         android:text="Register"
@@ -82,7 +85,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/sign_in__google_button"
-        app:layout_constraintVertical_bias="0.568" />
+        app:layout_constraintVertical_bias="0.384"
+        tools:ignore="HardcodedText" />
 
 
     <Button
@@ -99,7 +103,8 @@
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/logInButton"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="0.0"
+        tools:ignore="HardcodedText" />
 
 
     <TextView
@@ -120,27 +125,29 @@
         android:id="@+id/sign_in__google_button"
         android:layout_width="271dp"
         android:layout_height="45dp"
+        android:layout_marginBottom="20dp"
         android:background="#64dad2"
-        android:layout_marginBottom="48dp"
         app:layout_constraintBottom_toTopOf="@+id/noAccount"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.571"
+        app:layout_constraintHorizontal_bias="0.504"
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/noAccount"
         android:layout_width="150dp"
         android:layout_height="24dp"
-        android:layout_marginBottom="32dp"
+        android:layout_marginBottom="16dp"
         android:text="Don't have an account?"
         android:textAlignment="center"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/signUpButton"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintHorizontal_bias="0.938"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="HardcodedText" />
 
     <ImageView
         android:id="@+id/globe"
+        android:contentDescription="@null"
         android:layout_width="323dp"
         android:layout_height="228dp"
         android:layout_marginBottom="8dp"
@@ -155,6 +162,7 @@
 
     <ImageView
         android:id="@+id/imageView3"
+        android:contentDescription="@null"
         android:layout_width="326dp"
         android:layout_height="114dp"
         android:layout_marginBottom="8dp"

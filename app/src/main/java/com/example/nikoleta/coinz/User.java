@@ -1,7 +1,7 @@
 package com.example.nikoleta.coinz;
 
 public class User {
-    private String email, username, password;
+    private String email, password;
     private double money;
 
     User(String email, String password, double money) {
@@ -11,7 +11,6 @@ public class User {
     }
 
     public String getEmail() {
-
         return email;
     }
 

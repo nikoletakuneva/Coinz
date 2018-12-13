@@ -20,6 +20,7 @@
 
     <ImageView
         android:id="@+id/users"
+        android:contentDescription="@null"
         android:layout_width="355dp"
         android:layout_height="111dp"
         android:src="@drawable/users"
@@ -45,7 +46,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.505"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="HardcodedText" />
 
     <android.support.design.widget.TextInputLayout
         android:id="@+id/search"
@@ -70,12 +72,14 @@
             android:hint="Search"
             android:inputType="text"
             android:imeOptions="actionSearch"
-            android:theme="@style/SearchTheme" />
+            android:theme="@style/SearchTheme"
+            tools:ignore="HardcodedText" />
 
     </android.support.design.widget.TextInputLayout>
 
     <ImageView
         android:id="@+id/search_icon"
+        android:contentDescription="@null"
         android:layout_width="20dp"
         android:layout_height="24dp"
         android:layout_marginBottom="16dp"
@@ -104,6 +108,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.233"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/users" />
+        app:layout_constraintTop_toBottomOf="@+id/users"
+        tools:ignore="HardcodedText" />
 
 </android.support.constraint.ConstraintLayout>

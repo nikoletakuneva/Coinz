@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="5dp" >
+    android:padding="5dp"
+    tools:ignore="UseCompoundDrawables">
 
     <ImageView
         android:id="@+id/grid_image"
+        android:contentDescription="@null"
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:layout_gravity="center" />
@@ -18,7 +21,7 @@
         android:layout_gravity="center"
         android:layout_marginTop="5dp"
         android:textColor="#000000"
-        android:textSize="20dp" />
+        android:textSize="20sp" />
 
 
 </LinearLayout>

@@ -1,35 +1,22 @@
 package com.example.nikoleta.coinz;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-
-
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
 
 public class SignUpActivity extends Activity {
     EditText email,password;
@@ -42,11 +29,10 @@ public class SignUpActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
 
-        email = (EditText) findViewById(R.id.email);
-        password = (EditText) findViewById(R.id.password);
-        signUpButton = (Button) findViewById(R.id.signUpButton);
-        loginButton = (Button) findViewById(R.id.memberButton);
-
+        email = findViewById(R.id.email);
+        password = findViewById(R.id.password);
+        signUpButton = findViewById(R.id.signUpButton);
+        loginButton = findViewById(R.id.memberButton);
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -61,37 +47,30 @@ public class SignUpActivity extends Activity {
         params.y = -20;
         getWindow().setAttributes(params);
 
-        signUpButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mEmail = email.getText().toString();
-                mPassword = password.getText().toString();
-                if(mEmail.isEmpty()) {
-                    Toast.makeText(SignUpActivity.this, "Please enter an email.",
-                            Toast.LENGTH_SHORT).show();
-                }
-                else if(mPassword.isEmpty()) {
-                    Toast.makeText(SignUpActivity.this, "Please enter a password.",
-                            Toast.LENGTH_SHORT).show();
-                }
-                else {
-                    createAccount(mEmail, mPassword);
-                }
-                }
-        });
-
-        loginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(getApplicationContext(),LoginActivity.class));
+        signUpButton.setOnClickListener(v -> {
+            mEmail = email.getText().toString();
+            mPassword = password.getText().toString();
+            if(mEmail.isEmpty()) {
+                Toast.makeText(SignUpActivity.this, "Please enter an email.",
+                        Toast.LENGTH_SHORT).show();
             }
-        });
+            else if(mPassword.isEmpty()) {
+                Toast.makeText(SignUpActivity.this, "Please enter a password.",
+                        Toast.LENGTH_SHORT).show();
+            }
+            else {
+                createAccount(mEmail, mPassword);
+            }
+            });
+
+        loginButton.setOnClickListener(v -> startActivity(new Intent(getApplicationContext(),LoginActivity.class)));
 
         if(mAuth.getCurrentUser()!=null){
             startActivity(new Intent(getApplicationContext(),ProfileScreen.class));
         }
     }
 
+    @SuppressLint("LogNotTimber")
     private void createAccount(String email, String password) {
         Log.d("SignUpActivity", "createAccount:" + email);
         if(TextUtils.isEmpty(email)){
@@ -107,40 +86,39 @@ public class SignUpActivity extends Activity {
         }
 
         mAuth.createUserWithEmailAndPassword(email,password)
-                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if(task.isSuccessful()){
+                .addOnCompleteListener(task -> {
+                    if(task.isSuccessful()){
 
-                            Log.d("SignUpActivity", "createUserWithEmail:success");
-                            FirebaseFirestore db = FirebaseFirestore.getInstance();
-                            FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-                            FirebaseUser user = firebaseAuth.getCurrentUser();
+                        Log.d("SignUpActivity", "createUserWithEmail:success");
+                        FirebaseFirestore db = FirebaseFirestore.getInstance();
+                        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+                        FirebaseUser user = firebaseAuth.getCurrentUser();
 
-                            db.collection("users").document(user.getUid()).set(new User(email, password, 0.0));
-                            db.collection("users").document(user.getUid()).update("provider", "");
-                            db.collection("users").document(user.getUid()).update("coinsLeft", "25");
-                            db.collection("users").document(user.getUid()).update("wallet", new ArrayList<String>());
-                            db.collection("users").document(user.getUid()).update("coinsLeft", 25);
-                            db.collection("users").document(user.getUid()).update("magnetUnlocked", false);
-                            db.collection("users").document(user.getUid()).update("stealUnlocked", false);
-                            db.collection("users").document(user.getUid()).update("shieldUnlocked", false);
-                            db.collection("users").document(user.getUid()).update("magnetMode", false);
-                            db.collection("users").document(user.getUid()).update("stealUsed", false);
-                            db.collection("users").document(user.getUid()).update("piggybankProtected", false);
-                            db.collection("users").document(user.getUid()).update("cantStealFrom", new ArrayList<String>());
-                            db.collection("users").document(user.getUid()).update("piggybank", new ArrayList<String>());
-                            db.collection("users").document(user.getUid()).update("treasureUnlocked",false);
-                            db.collection("users").document(user.getUid()).update("treasureFound",false);
+                        // Set all the default values in the database for the new user.
+                        assert user != null;
+                        db.collection("users").document(user.getUid()).set(new User(email, password, 0.0));
+                        db.collection("users").document(user.getUid()).update("provider", "");
+                        db.collection("users").document(user.getUid()).update("coinsLeft", "25");
+                        db.collection("users").document(user.getUid()).update("wallet", new ArrayList<String>());
+                        db.collection("users").document(user.getUid()).update("coinsLeft", 25);
+                        db.collection("users").document(user.getUid()).update("magnetUnlocked", false);
+                        db.collection("users").document(user.getUid()).update("stealUnlocked", false);
+                        db.collection("users").document(user.getUid()).update("shieldUnlocked", false);
+                        db.collection("users").document(user.getUid()).update("magnetMode", false);
+                        db.collection("users").document(user.getUid()).update("stealUsed", false);
+                        db.collection("users").document(user.getUid()).update("piggybankProtected", false);
+                        db.collection("users").document(user.getUid()).update("cantStealFrom", new ArrayList<String>());
+                        db.collection("users").document(user.getUid()).update("piggybank", new ArrayList<String>());
+                        db.collection("users").document(user.getUid()).update("treasureUnlocked",false);
+                        db.collection("users").document(user.getUid()).update("treasureFound",false);
 
-                            startActivity(new Intent(getApplicationContext(),UsernameActivity.class));
-                            finish();
-                        }
-                        else{
-                            Log.w("SignUpActivity", "createUserWithEmail:failure", task.getException());
-                            Toast.makeText(SignUpActivity.this, "Couldn't register. Try again.",
-                                    Toast.LENGTH_SHORT).show();
-                        }
+                        startActivity(new Intent(getApplicationContext(),UsernameActivity.class));
+                        finish();
+                    }
+                    else{
+                        Log.w("SignUpActivity", "createUserWithEmail:failure", task.getException());
+                        Toast.makeText(SignUpActivity.this, "Couldn't register. Try again.",
+                                Toast.LENGTH_SHORT).show();
                     }
                 });
     }

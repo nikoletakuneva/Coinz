@@ -9,8 +9,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.content.res.ResourcesCompat;
 import android.util.Log;
 import android.view.View;
@@ -22,17 +20,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Button;
 import android.widget.TextView;
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import android.widget.Toast;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.gson.JsonObject;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineListener;
 import com.mapbox.android.core.location.LocationEnginePriority;
@@ -55,25 +49,17 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin;
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.CameraMode;
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode;
-
-import org.json.JSONException;
-
 import java.io.BufferedReader;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Stream;
 
 public class MapActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, LocationEngineListener,
@@ -83,7 +69,6 @@ public class MapActivity extends AppCompatActivity
     private MapView mapView;
     static MapboxMap map;
     private LocationEngine locationEngine;
-    private Location originLocation;
     private boolean mapChange = false;
 
     String downloadDate = ""; // Format: YYYY/MM/DD
@@ -103,56 +88,62 @@ public class MapActivity extends AppCompatActivity
 
     static List<Coin> walletCoins = new ArrayList<>();
 
+    @SuppressLint("StaticFieldLeak")
     static TextView quid_rate;
+    @SuppressLint("StaticFieldLeak")
     static TextView dolr_rate;
+    @SuppressLint("StaticFieldLeak")
     static TextView peny_rate;
+    @SuppressLint("StaticFieldLeak")
     static TextView shil_rate;
 
+    @SuppressLint("LogNotTimber")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_navigation_drawer);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        quid_rate = (TextView) findViewById(R.id.quid_rate);
-        dolr_rate = (TextView) findViewById(R.id.dolr_rate);
-        peny_rate = (TextView) findViewById(R.id.peny_rate);
-        shil_rate = (TextView) findViewById(R.id.shil_rate);
+        quid_rate = findViewById(R.id.quid_rate);
+        dolr_rate = findViewById(R.id.dolr_rate);
+        peny_rate = findViewById(R.id.peny_rate);
+        shil_rate = findViewById(R.id.shil_rate);
 
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         FirebaseUser currUser = firebaseAuth.getCurrentUser();
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
          ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        NavigationView navigationView = findViewById(R.id.nav_view);
         View headerView = navigationView.getHeaderView(0);
         TextView email = headerView.findViewById(R.id.nav_header_email);
+        assert currUser != null;
         email.setText(currUser.getEmail());
 
         TextView usernameText = headerView.findViewById(R.id.usernameView);
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         DocumentReference docRef = db.collection("users").document(currUser.getUid());
-        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        Log.d("ProfileScreen", "DocumentSnapshot data: " + document.getData());
-                        String username = document.getString("username");
-                        usernameText.setText(username);
-                    } else {
-                        Log.d("ProfileScreen", "No such document");
-                    }
-                } else {
-                    Log.d("ProfileScreen", "get failed with ", task.getException());
+        docRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+                assert document != null;
+                if (document.exists()) {
+                    Log.d("ProfileScreen", "DocumentSnapshot data: " + document.getData());
+                    String username = document.getString("username");
+                    usernameText.setText(username);
                 }
+                else {
+                    Log.d("ProfileScreen", "No such document");
+                }
+            }
+            else {
+                Log.d("ProfileScreen", "get failed with ", task.getException());
             }
         });
 
@@ -166,7 +157,7 @@ public class MapActivity extends AppCompatActivity
 
     }
 
-    @SuppressLint("LogNotTimber")
+    @SuppressLint({"LogNotTimber", "DefaultLocale"})
     @Override
     public void onMapReady(MapboxMap mapboxMap) {
         if (mapboxMap == null) {
@@ -185,7 +176,7 @@ public class MapActivity extends AppCompatActivity
             icon_quid = getIcon(R.drawable.quid);
             icon_shilling = getIcon(R.drawable.shilling);
 
-            DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+            @SuppressLint("SimpleDateFormat") DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
             Date date = new Date();
             String todayDate = dateFormat.format(date);
 
@@ -198,7 +189,7 @@ public class MapActivity extends AppCompatActivity
             }
             else {
                 //Load map from the downloaded file
-                String geoJsonString = "";
+                String geoJsonString;
                 fileDownloaded = 1;
 
                 quid_rate.setText(String.format("%.2f GOLD", rateQUID));
@@ -237,8 +228,7 @@ public class MapActivity extends AppCompatActivity
         assert iconDrawable != null;
         Bitmap bitmap = iconDrawable.getBitmap();
         Bitmap smallMarker = Bitmap.createScaledBitmap(bitmap, 100, 100, false);
-        Icon icon = iconFactory.fromBitmap(smallMarker);
-        return icon;
+        return iconFactory.fromBitmap(smallMarker);
     }
 
     @SuppressLint("LogNotTimber")
@@ -263,7 +253,6 @@ public class MapActivity extends AppCompatActivity
         locationEngine.activate();
         Location lastLocation = locationEngine.getLastLocation();
         if (lastLocation != null) {
-            originLocation = lastLocation;
             setCameraPosition(lastLocation);
         } else {
             locationEngine.addLocationEngineListener(this);
@@ -302,7 +291,6 @@ public class MapActivity extends AppCompatActivity
         }
         else {
             Log.d(tag, "[onLocationChanged] location is not null");
-            originLocation = location;
             setCameraPosition(location);
 
             double user_latitude = location.getLatitude();
@@ -315,67 +303,59 @@ public class MapActivity extends AppCompatActivity
             if (user != null) {
                 DocumentReference docRef = db.collection("users").document(user.getUid());
 
-                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        int collectionDistance = 25;
-                        // Everytime we are trying to access current user's information we are checking whether the user is not null in case they've logged out
-                        if (firebaseAuth.getCurrentUser()!= null && Objects.requireNonNull(task.getResult()).contains("magnetMode")) {
-                            if (firebaseAuth.getCurrentUser()!= null && Objects.requireNonNull(task).getResult().getBoolean("magnetMode")) {
-                                collectionDistance = 75;
-                            }
+                docRef.get().addOnCompleteListener(task -> {
+                    int collectionDistance = 25;
+
+                    //Check if user is currently using Magnet Mode and update the collection distance.
+                    if (firebaseAuth.getCurrentUser()!= null && Objects.requireNonNull(task.getResult()).contains("magnetMode")) {
+                        if (firebaseAuth.getCurrentUser()!= null && (boolean) Objects.requireNonNull(Objects.requireNonNull(task).getResult()).get("magnetMode")) {
+                            collectionDistance = 75;
                         }
+                    }
 
-                        if (task.getResult().contains("treasureUnlocked") && task.getResult().contains("treasureFound")) {
-                            if (task.getResult().getBoolean("treasureUnlocked") && !task.getResult().getBoolean("treasureFound") && distance(user_latitude, user_longitude, treasureLatitude, treasureLongitude) <= 15) {
-                                startActivity(new Intent(getApplicationContext(), TreasureFoundActivity.class));
-                                db.collection("users").document(user.getUid()).update("treasureFound", true);
-                                double currentMoney = Double.parseDouble(task.getResult().get("money").toString()) + 1000;
-                                db.collection("users").document(user.getUid()).update("money", currentMoney);
-                            }
+                    // User has found the treasure. Add 1000 GOLD to their bank account.
+                    if (task.getResult().contains("treasureUnlocked") && task.getResult().contains("treasureFound")) {
+                        if ((boolean) Objects.requireNonNull(Objects.requireNonNull(task).getResult()).get("treasureUnlocked") &&  !(boolean) Objects.requireNonNull(Objects.requireNonNull(task).getResult()).get("treasureFound") && distance(user_latitude, user_longitude, treasureLatitude, treasureLongitude) <= 15) {
+                            startActivity(new Intent(getApplicationContext(), TreasureFoundActivity.class));
+                            db.collection("users").document(user.getUid()).update("treasureFound", true);
+                            double currentMoney = Double.parseDouble(Objects.requireNonNull(task.getResult().get("money")).toString()) + 1000;
+                            db.collection("users").document(user.getUid()).update("money", currentMoney);
                         }
+                    }
 
-                        for (Marker marker: map.getMarkers()) {
-                            LatLng latlng = marker.getPosition();
-                            double marker_latitude = latlng.getLatitude();
-                            double marker_longitude = latlng.getLongitude();
-                            if (distance (user_latitude, user_longitude, marker_latitude, marker_longitude) <= collectionDistance) {
-                                mapChange = true;
-                                map.removeMarker(marker);
+                    for (Marker marker: map.getMarkers()) {
+                        LatLng latlng = marker.getPosition();
+                        double marker_latitude = latlng.getLatitude();
+                        double marker_longitude = latlng.getLongitude();
+                        if (distance (user_latitude, user_longitude, marker_latitude, marker_longitude) <= collectionDistance) {
+                            // User has collected the coin.
+                            mapChange = true;
+                            map.removeMarker(marker);
 
-                                String valueCurrency = marker.getTitle();
-                                String id = marker.getSnippet();
-                                String currency = valueCurrency.substring(valueCurrency.length() - 4);
-                                String valueStr = valueCurrency.replace( " " + currency, "");
-                                double value = Double.parseDouble(valueStr);
-                                Coin coin = new Coin(currency, value, id);
-                                walletCoins.add(coin);
+                            String valueCurrency = marker.getTitle();
+                            String id = marker.getSnippet();
+                            String currency = valueCurrency.substring(valueCurrency.length() - 4);
+                            String valueStr = valueCurrency.replace( " " + currency, "");
+                            double value = Double.parseDouble(valueStr);
+                            Coin coin = new Coin(currency, value, id);
+                            walletCoins.add(coin);
 
-                                FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-                                FirebaseUser user  = firebaseAuth.getCurrentUser()  ;
-                                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                            List<String> walletCoinsList = new ArrayList<>();
 
-                                List<String> walletCoinsList = new ArrayList<>();
+                            String coinStr = coin.getValue() + " " + coin.getCurrency() + " "  + coin.getId();
+                            walletCoinsList.add(coinStr);
 
-                                String coinStr = coin.getValue() + " " + coin.getCurrency() + " "  + coin.getId();
-                                walletCoinsList.add(coinStr);
-
-//                                DocumentReference docRef = db.collection("users").document(user.getUid());
-//                                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-//                                    @Override
-//                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                        if (firebaseAuth.getCurrentUser()!= null && task.getResult().contains("wallet")) {
-                                            String[] prevCoins = task.getResult().get("wallet").toString().replaceAll("\\[", "").replaceAll("\\]", "").split(", ");
-                                            for (String c: prevCoins) {
-                                                if (!c.equals("")) {
-                                                    walletCoinsList.add(c);
-                                                }
-                                            }
-                                        }
-                                        db.collection("users").document(user.getUid()).update("wallet", walletCoinsList);
-//                                    }
-//                                });
+                            if (firebaseAuth.getCurrentUser() != null && task.getResult().contains("wallet")) {
+                                String[] prevCoins = Objects.requireNonNull(task.getResult().get("wallet")).toString().replaceAll("\\[", "").replaceAll("]", "").split(", ");
+                                for (String c : prevCoins) {
+                                    if (!c.equals("")) {
+                                        walletCoinsList.add(c);
+                                    }
+                                }
                             }
+
+                            // Add the coin to Firestore.
+                            db.collection("users").document(user.getUid()).update("wallet", walletCoinsList);
                         }
                     }
                 });
@@ -385,8 +365,8 @@ public class MapActivity extends AppCompatActivity
         }
     }
 
+    // Calculate the distance between two points on the map.
     private double distance(double lat1, double lng1, double lat2, double lng2) {
-
         double earthRadius = 6371000; // in metres
 
         double dLat = Math.toRadians(lat2-lat1);
@@ -395,14 +375,11 @@ public class MapActivity extends AppCompatActivity
         double sindLat = Math.sin(dLat / 2);
         double sindLng = Math.sin(dLng / 2);
 
-        double a = Math.pow(sindLat, 2) + Math.pow(sindLng, 2)
-                * Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2));
+        double a = Math.pow(sindLat, 2) + Math.pow(sindLng, 2) * Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2));
 
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 
-        double dist = earthRadius * c;
-
-        return dist;
+        return earthRadius * c;
     }
 
     @Override
@@ -428,17 +405,17 @@ public class MapActivity extends AppCompatActivity
         if (granted) {
             enableLocation();
         } else {
-            // Open a dialogue with the user
+            Toast.makeText(this, "Insufficient permissions.", Toast.LENGTH_SHORT).show();
         }
     }
 
+    @SuppressLint("LogNotTimber")
     @Override
     protected void onStart() {
         super.onStart();
         mapView.onStart();
 
         if(locationEngine != null){
-
             try {
                 locationEngine.requestLocationUpdates();
             } catch(SecurityException ignored) {}
@@ -490,9 +467,8 @@ public class MapActivity extends AppCompatActivity
         // Apply the edits!
         editor.apply();
 
+        // Update the map into the local storage.
         updateFile();
-
-
     }
 
     @Override
@@ -516,10 +492,11 @@ public class MapActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else {
+        }
+        else {
             super.onBackPressed();
             startActivity(new Intent(getApplicationContext(), ProfileScreen.class));
             finish();
@@ -527,12 +504,11 @@ public class MapActivity extends AppCompatActivity
     }
 
     public void updateFile() {
-        if (mapChange == true) {
+        if (mapChange) {
             List<Feature> featuresList = new ArrayList<>();
             for (Marker marker : map.getMarkers()) {
                 LatLng pos = marker.getPosition();
-                Point p = Point.fromLngLat(pos.getLongitude(), pos.getLatitude());
-                Geometry g = (Geometry) p;
+                Geometry g = Point.fromLngLat(pos.getLongitude(), pos.getLatitude());
                 Feature f = Feature.fromGeometry(g);
                 f.addStringProperty("id", marker.getSnippet());
                 String valueCurrency = marker.getTitle();
@@ -555,15 +531,15 @@ public class MapActivity extends AppCompatActivity
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         FirebaseUser user = firebaseAuth.getCurrentUser();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
+        assert user != null;
+
+        // Change the icon in the Navigation Drawer if there are new notifications.
         DocumentReference docRef = db.collection("users").document(user.getUid());
-        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.getResult().contains("newNotifications")) {
-                    if (task.getResult().getBoolean("newNotifications") == true) {
-                        NavigationView navigationView = (NavigationView)findViewById(R.id.nav_view);
-                        navigationView.getMenu().getItem(4).setIconTintMode(null).setIcon(R.drawable.notifications);
-                    }
+        docRef.get().addOnCompleteListener(task -> {
+            if (Objects.requireNonNull(task.getResult()).contains("newNotifications")) {
+                if ((boolean) Objects.requireNonNull(Objects.requireNonNull(task).getResult()).get("newNotifications")) {
+                    NavigationView navigationView = findViewById(R.id.nav_view);
+                    navigationView.getMenu().getItem(4).setIconTintMode(null).setIcon(R.drawable.notifications);
                 }
             }
         });
@@ -588,25 +564,29 @@ public class MapActivity extends AppCompatActivity
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
         if (id == R.id.nav_wallet) {
             startActivity(new Intent(getApplicationContext(), Wallet.class));
-        } else if (id == R.id.nav_piggybank) {
+        }
+        else if (id == R.id.nav_piggybank) {
             startActivity(new Intent(getApplicationContext(), Piggybank.class));
-        } else if (id == R.id.nav_bank) {
+        }
+        else if (id == R.id.nav_bank) {
             startActivity(new Intent(getApplicationContext(), Bank.class));
-        } else if (id == R.id.nav_boost) {
+        }
+        else if (id == R.id.nav_boost) {
             startActivity(new Intent(getApplicationContext(), BoostersActivity.class));
-        } else if (id == R.id.nav_gift) {
+        }
+        else if (id == R.id.nav_gift) {
             SelectUserActivity.sendCoins = true;
             SelectUserActivity.stealCoins = false;
             startActivity(new Intent(getApplicationContext(), SelectUserActivity.class));
         }
         else if (id == R.id.nav_notifications) {
-            NavigationView navigationView = (NavigationView)findViewById(R.id.nav_view);
+            NavigationView navigationView = findViewById(R.id.nav_view);
             navigationView.getMenu().getItem(4).setIconTintMode(null).setIcon(R.drawable.no_notifications);
             startActivity(new Intent(getApplicationContext(), NotificationsActivity.class));
         }
@@ -614,13 +594,13 @@ public class MapActivity extends AppCompatActivity
             startActivity(new Intent(getApplicationContext(), Ranking.class));
         }
         else if (id == R.id.nav_logout) {
-            FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();;
+            FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
             firebaseAuth.signOut();
             startActivity(new Intent(getApplicationContext(), LoginActivity.class));
             finish();
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
