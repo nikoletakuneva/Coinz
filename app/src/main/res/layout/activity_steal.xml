@@ -29,7 +29,7 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="352dp"
-        android:text="This Booster gives you the ability to steal the coin with highest GOLD value from the piggybank of another user."
+        android:text="This Booster gives you the ability to steal the coin with highest GOLD value from the Piggybank of another user."
         android:textAlignment="textStart"
         android:textColor="#ffffff"
         android:textSize="18sp"
